@@ -1,0 +1,968 @@
+@CHARSET "ISO-8859-1";
+/* file:///android_asset/ */
+*{
+    margin:0px;
+    padding: 0px;
+  }
+  body{
+    background-color: #CBCBCB; /* #dee0ec; */
+    font-family: sans-serif;
+  }
+
+* {
+   -webkit-user-select: none;
+}
+.centerHolder {
+  width:100%;
+  display: table;
+
+  height: 100%;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.centerHolder .centercontent {
+  line-height: 1.5;
+  display: table-cell;
+  vertical-align: middle;
+}
+.fullWidthButtonWhite:active,.fullWidthButtonWhite:focus,.fullWidthButton:active , .fullWidthButton:focus{
+  outline: none;
+}
+
+.fullWidthButton:active{
+  /* background-color: rgba(0,85,149,0.6); */
+}
+.fullWidthButtonWhite:active{
+  background-color: rgba(255,255,255,0.6);
+}
+.fullWidthButton#payInvoiceButton{
+  background-color: #76c40c;
+  color: #FFFFFF;
+  -webkit-border-radius: 8px;
+-moz-border-radius: 8px;
+border-radius: 8px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+  .fullWidthButton{
+    background-color: #005595;
+    width:100%;
+    height:32px;
+    border: 0px solid transparent;
+    text-align: center;
+    padding: 4px;
+    line-height: 24px;
+    font-weight: bold;
+    font-size: 13px;
+    color:#FFFFFF;
+  }
+
+
+.full_modal-dialog {
+  width: 96% !important;
+  height: 92% !important;
+  min-width: 96% !important;
+  min-height: 92% !important;
+  max-width: 96% !important;
+  max-height: 92% !important;
+  padding: 0 !important;
+}
+  .fullWidthButton.greenButton{
+    background-color: #76c40c;
+  -webkit-border-radius: 8px;
+-moz-border-radius: 8px;
+border-radius: 8px;
+  }
+  .btn-circle.orangeButton{
+    background-color: #fc9a1d;
+    border : thin solid transparent;
+  }
+  .fullWidthButton.orangeButton{
+    background-color: #fc9a1d;
+  -webkit-border-radius: 8px;
+-moz-border-radius: 8px;
+border-radius: 8px;
+  }
+  #fourLeftButtons > div.row > .col-3 > .fullWidthButton
+  {
+    font-weight: normal;
+    font-family: sans-serif;
+    font-stretch: semi-condensed;
+  }
+  #defaultPageHeadButtons{ display :block;}
+  #pageHead{ display : none; }
+  #fourLeftButtons > div.row > .col-3:first-child > .fullWidthButton{
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px; 
+  }
+  #fourLeftButtons  > div.row > .col-3:last-child > .fullWidthButton{
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+  }
+    .fullWidthButton.fourButtonsOdd{
+      background-color: #1153DD; 
+      color: white;
+    }
+    .fullWidthButton.fourButtonsEven{
+      background-color: #4175e3;
+      color: white; 
+    }
+  .fullWidthButtonWhite{
+    background-color: #FFFFFF;
+    width:100%;
+    height:32px;
+    border: 0px solid transparent;
+    text-align: center;
+    padding: 4px;
+    line-height: 24px;
+    font-size: 14px;
+    font-weight: bold;
+    color:#005595;
+  }
+
+  .scanBarcodeInputDiv{
+    width:40%;
+    float:left;
+  }
+  .itemQtyForBarcodeInputDiv{
+    width:15%;
+    float:left;
+  }
+  .goButtonForScan{
+    width:calc(20% - 4px);
+    margin : 0px 2px;
+    float:left;
+  }
+
+  .searchButtonForScan{
+    width:calc(25% - 6px);
+    margin : 0px 4px 0px 2px;
+    float:left;
+  }
+
+  .itemQtyForBarcodeInputDiv #itemQty{
+    text-align: center;
+  }
+  .barcodeScanInput:focus,.barcodeScanInput:active{
+    outline:none;
+  }
+  .barcodeScanInput{
+    border : 0px solid transparent;
+    padding:4px;
+    height:28px;
+    line-height: 28px;
+    font-size: 14px;
+    width: calc(96% - 6px);
+    margin:2px 2px 2px 4px;
+    -webkit-border-radius: 2px;
+-moz-border-radius: 2px;
+border-radius: 2px;
+  }
+
+
+  #completeHolder{
+    width:100%;
+    position: absolute;
+    top:0px;
+    left: 0px;
+    right:0px;
+    bottom: 0px;
+    overflow-x: hidden;
+    overflow-y : auto;
+  }
+	#myContainer{
+    display:none;
+    width:100%;
+    float:left;
+  }
+  #myContainer #leftHalf,#myContainer #rightHalf{
+    width:50%;
+    float:left;
+  }
+  #leftHalf{
+    overflow-x: hidden;
+  }
+  #rightHalf{
+   overflow-x: hidden;;
+  }
+#clearrecallButtonContent{ display: none; }
+.headingSet{ position: absolute; left:0px; top:0px; right:0px; background-color:#FFFFFF; text-align: center; }
+.headingSet .storeInfo{ font-size: 11px; }
+.headingSet .storeInfo span{ font-size: 11px; }
+#barcodeScanningSection{ position: absolute; left: 0px; top:0px; width: 100%;  }
+
+#itemsCartSection{ background-color:transparent; width: calc(100% - 6px); min-height: 20px; position: absolute; left:0px; overflow: auto; margin-left:3px;
+  -webkit-border-radius: 8px;
+-moz-border-radius: 8px;
+border-radius: 8px;
+  background-color:#FFFFFF;
+}
+#leftButtonsSection{  width:100%;  min-height: 20px; position: absolute;  left:0px;  overflow: auto;}
+
+#leftButtonsSection #fourLeftButtons{ position: relative; top:0px;left: 0px; right: 0px; height: 40px; padding-top:3px;   }
+#leftButtonsSection #fourLeftButtons > div.row{ margin:0px; }
+#leftButtonsSection #fourLeftButtons > div.row > div.col-3{ padding-left: 1.5px; padding-right: 1.5px; }
+#leftButtonsSection #invoicePrintingAndSummary { position: relative; top:0px; left:0px; right:0px; bottom: 0px; height: calc(100% - 40px); }
+
+#leftButtonsSection #invoicePrintingAndSummary  #voidReprintRecallSave{
+  position: absolute; left: 5px; width: calc(40% - 5px);  color:#FFFFFF; top:0px; bottom: 0px;
+}
+#voidReprintRecallSave div.row{ margin-left:0px; margin-right:0px; }
+#voidReprintRecallSave div.row > div{ padding-left:2px; padding-right:2px; margin-bottom: 3px; }
+#voidReprintRecallSave div.row > div button{ font-weight: normal; height: auto; padding-top:10px; padding-bottom: 10px; }
+
+#voidReprintRecallSave div.row > div button{
+    -webkit-border-radius: 10px;
+-moz-border-radius: 10px;
+border-radius: 10px;
+color: #000000;
+}
+#leftButtonsSection #invoicePrintingAndSummary  #invoiceSummary{
+  position: absolute; left: 40%; width: 40%;  color:#FFFFFF; top:0px; bottom: 0px;
+
+}
+#invoiceSummaryContainer{
+  background-color: #FFFFFF;
+  -webkit-border-radius: 10px;
+-moz-border-radius: 10px;
+border-radius: 10px;
+  margin-left:10px;
+  margin-right: 10px;
+  width: calc(100% - 20px);
+}
+
+#invoiceSummaryContainer table.table{ margin-bottom: 0px; color: #000000; font-family: sans-serif; font-stretch: semi-condensed; }
+#invoiceSummaryContainer table.table td{ padding: 4px 10px; line-height: 26px;}
+#printPreviewButton{ display: none; float:left; }
+#leftButtonsSection #invoicePrintingAndSummary  #payButton{
+  position: absolute; left: 80%; width: calc(20% - 5px); color:#FFFFFF; top:0px; bottom: 0px; margin-right: 5px;
+
+}
+
+#leftHalf,#rightHalf { position:relative; overflow-y: hidden; }
+
+#paymentCustomerButtonsSection{
+   width:100%; min-height: 20px; position: absolute; left:0px; overflow: auto;
+}
+      .page-container {
+                text-align: center;
+                margin: 150px 0px 0px 0px;
+            }
+            .input-container {
+                position: relative;
+                max-width: 400px;
+                margin: auto;
+                background: linear-gradient(to bottom right, #3F51B5 , #7E57C2);
+                -webkit-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.5);
+                -moz-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.5);
+                box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.5);
+                padding: 50px;
+            }
+            .input-container > input {
+                padding: 10px;
+                outline: none !important;
+                box-shadow: none !important;
+                text-align: center;
+            }
+
+            span.tap {
+                font-size: 22px;
+            }
+
+
+#paymentCustomerButtonsSection #paymentTypesAndOrderTypes
+{
+  position: relative;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    height: calc(100% - 40px);
+    padding-top: 10px;
+}
+
+#paymentCustomerButtonsSection #paymentTypesAndOrderTypes #holderTable{
+  position: absolute;
+  top:0px;
+  left: 0px;
+  bottom: 0px;
+  right: 0px;
+  width: calc(100% - 10px);
+  height: 100%;
+  display: table;
+}
+#paymentCustomerButtonsSection #paymentTypesAndOrderTypes #holderTable #paymentButtons{
+  display: table-cell;
+  vertical-align: middle;
+  }
+#itemsCartSection #itemsTable{
+  width:100%;
+}
+#itemsCartSection #itemsTable thead{
+  background-color: #1153DD;
+  padding-left: 5px;
+}
+
+#itemsCartSection #itemsTable thead td,#itemsCartSection #itemsTable thead th{
+  background-color: #1153DD;
+  padding: 5px 0px;
+  color: #FFFFFF;
+
+    font-weight: normal;
+    font-family: sans-serif;
+    font-stretch: semi-condensed;
+}
+#itemsCartSection #itemsTable thead th:first-child{ padding-left: 5px; }
+#itemsCartSection #itemsTable tr.highlightrow{
+  background-color: #DADADA;
+  border-top: thin solid #0A0A0A;
+  border-bottom: thin solid #0A0A0A;
+}
+#itemsCartSection #itemsTable tr td:first-child{
+  padding-right:6px;
+}
+#itemsCartSection #itemsTable tr td:nth-child(6){
+  padding-right: 12px;
+}
+#itemsSelector{
+  width:100%;  min-height: 20px; position: absolute;  left:0px;  overflow: auto;  
+    border-top: 2px solid transparent;
+}
+#itemsWithSelection{ float:left; width:calc(75% - 4px); margin-left:2px; margin-right:2px; overflow-y:auto;}
+#departmentsSelection{ float:left; width:25%; overflow-y:auto; background-color:#FFFFFF; 
+    -webkit-border-radius: 8px;
+-moz-border-radius: 8px;
+border-radius: 8px;
+}
+.productsForDepartmentsHolder{
+  width:100%;float: left;
+}
+#itemsCartSection td{
+    padding-left:0px;
+    padding-right:0px;
+    text-align:left;
+}
+  #itemsCartSection th{
+    font-size:10px;
+    padding:2px;
+    font-weight: normal;
+  }
+  #itemsCartSection tr{
+    font-size:12px;
+  }
+
+#invoiceSummary .row{ margin-left:0px; margin-right: 0px; }
+#invoiceSummary .row .col-12 > div{  }
+.invoicesummaryLeftHeading{
+  width:calc(50% - 5px);
+  padding-left:5px;
+  padding-top:3px;
+  padding-bottom:3px;
+  margin-bottom:4px;
+  float: left;
+  height:auto;
+  overflow: hidden;
+  background-color: #FFFFFF;
+  color:#797979;
+  font-family: sans-serif;
+  text-align:left;
+}
+ .invoicesummaryRightContent.grandTotalDiv,.invoicesummaryLeftHeading.grandTotalDiv{
+  font-weight: bold;
+ }
+ #grandTotalOfInvoice{ font-weight: bold; }
+.invoicesummaryRightContent{
+  width:50%;
+  float: left;
+  height:auto;
+  overflow: hidden;
+  padding-top:3px;
+  padding-bottom:3px;
+  margin-bottom: 4px;
+  background-color: #FFFFFF;
+  color:#005595;
+  text-align:center;
+  font-weight: bold;
+}
+
+#payButton button.fullWidthButton{ height:auto; }
+
+#paymentCustomerButtonsSection .row.categoriesSelection{position: relative; top:0px;left: 0px; right: 0px; height: 40px; overflow-x: auto;overflow-y:hidden; }
+
+#paymentCustomerButtonsSection .row.categoriesSelection{ width:calc(100% - 10px); overflow-x:auto; margin-left:5px; padding-left:0px; margin-right:5px; padding-right:0px; 
+  background-color: #FEFEFE;
+  border-radius: 8px; 
+  -webkit-border-radius: 8px;
+-moz-border-radius: 8px;
+}
+
+#paymentCustomerButtonsSection .row.categoriesSelection .eachCategory{
+    color:#555555;
+    height:40px; line-height: 40px; font-size : 16px; font-weight: bold; width:auto;
+    padding-left:20px; padding-right:20px;
+    text-align: center; cursor: pointer; font-weight: normal;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+#paymentCustomerButtonsSection .row.categoriesSelection table.table td{ border-top:none; }
+#paymentCustomerButtonsSection .row.categoriesSelection table.table{
+  margin-bottom: 0px;
+  width:auto;
+}
+#paymentCustomerButtonsSection .row.categoriesSelection table.table td{
+  padding:0px;
+}
+#paymentCustomerButtonsSection .row.categoriesSelection .eachCategory.active{ background-color: #1153DD;
+    color: #FFFFFF;}
+
+
+#departmentsSelection .eachDepartment{ width:100%; float:left; padding-left:10px; padding-top:10px; padding-bottom: 10px; background-color:#FFFFFF; color:#575757; }
+#departmentsSelection .eachDepartment.active{ color:#FFFFFF; background-color: #1045DC; }
+
+#itemsWithSelection .productImageAndName{
+  position:relative; float: left;
+  margin-bottom: 4px;
+}
+#itemsWithSelection .productImageAndName .productImage{
+  max-width: 100%;
+  width:calc(100%);
+  margin:0px;
+  display: none;
+}
+#itemsWithSelection .productImageAndName .productImage img{ width:100%; }
+#itemsWithSelection.withImages .productImageAndName .productImage{
+  display: block;
+}
+#itemsWithSelection.withImages .productImageAndName .productName
+{
+  color:#FFFFFF;
+  font-family: Arial;
+  width: calc(100% - 4px);
+  text-align:center;
+  font-size: 12px;
+  line-height: 18px;
+  position: absolute;;
+  right: 0px;
+  left:2px;
+  bottom: 0px;
+  background-color: rgb(0,0,0,0.6);
+  padding:5px 2px;
+}
+#orderTableSelection button:focus{
+  border: thin solid #FF00FF;
+}
+#itemSearchBody tr.tableitemrow.active,#customerSearchBody tr.tablecustomerrow.active{
+  background-color: rgba(0,0,0,0.2);
+}
+#itemsWithSelection.withImages .productImageAndName .productName
+{
+  border: none;
+    -webkit-border-radius: 0px;
+-moz-border-radius: 0px;
+border-radius: 0px;
+-moz-box-shadow: 0px 0px 0px rgba(68,68,68,0.6);
+  -webkit-box-shadow: 0px 0px 0px rgba(68,68,68,0.6);
+  box-shadow: 0px 0px 0px rgba(68,68,68,0.6);
+  color: #FFFFFF;
+}
+#itemsWithSelection .productImageAndName .productName
+{
+  /* background-color:rgb(6,49,144); */
+   background-color:#FFFFFF;
+   border: 2px solid rgba(1,47,148,1); 
+  font-family: Arial;
+  width:100%;
+  text-align:center;
+  font-size: 12px;
+  line-height: 30px;
+   color: #000000;  /* color: #FFFFFF; */
+-moz-box-shadow: 3px 3px 3px rgba(68,68,68,0.6);
+  -webkit-box-shadow: 3px 3px 3px rgba(68,68,68,0.6);
+  box-shadow: 3px 3px 3px rgba(68,68,68,0.6);
+
+  filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius=3,MakeShadow=true,ShadowOpacity=0.30);
+  -ms-filter: "progid:DXImageTransform.Microsoft.Blur(PixelRadius=3,MakeShadow=true,ShadowOpacity=0.30)";
+  zoom: 1;
+    -webkit-border-radius: 5px;
+-moz-border-radius: 5px;
+border-radius: 5px;
+}
+
+
+textarea:hover, 
+input:hover, 
+textarea:active, 
+input:active, 
+textarea:focus, 
+input:focus,
+button:focus,
+button:active,
+button:hover,
+label:focus,
+.btn:active,
+.btn.active
+{
+    outline:0px !important;
+    -webkit-appearance:none;
+    box-shadow: none !important;
+}
+#itemsWithSelection.withoutImages .productImageAndName .productName
+{
+    -webkit-border-radius: 5px;
+-moz-border-radius: 5px;
+border-radius: 5px;
+}
+
+#itemsWithSelection .productImageAndName{
+  display: table;
+  padding: 2px;
+}
+#itemsWithSelection.withImages .productImageAndName{
+  display: block;
+  padding: 0px;
+  background-color: transparent;
+  padding: 2px;
+  overflow :hidden;
+  float: left;
+}
+
+
+#itemsWithSelection .productImageAndName .productName{
+    display: table-cell;
+    height: 80px;
+    vertical-align: middle;
+    overflow: hidden;
+    line-height: 22px;
+}
+
+#itemsWithSelection.withImages .productImageAndName .productName{
+    display:block;
+  height: auto;
+  padding :1px 2px;
+  background-color: rgba(0,0,0,0.6);
+}
+#itemsWithSelection.withoutImages .productHolder{ float: left; height: 80px; overflow: hidden; width:100%; }
+
+
+#paymentCustomerButtonsSection #paymentTypesAndOrderTypes #holderTable #paymentButtons .paymentButtonIcon{width:33%; float: left; background-color: #FFFFFF; color: #005595;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    vertical-align: middle;
+    padding: 5px;
+
+    -webkit-border-top-left-radius: 8px;
+-moz-border-top-left-radius: 8px;
+border-top-left-radius: 8px;
+    -webkit-border-bottom-left-radius: 8px;
+-moz-border-bottom-left-radius: 8px;
+border-bottom-left-radius: 8px;
+  }
+
+#paymentCustomerButtonsSection #paymentTypesAndOrderTypes #holderTable #paymentButtons .paymentButtonIcon img{
+  max-width: 70%; margin-top:-20%;
+}
+#paymentCustomerButtonsSection #paymentTypesAndOrderTypes #holderTable #paymentButtons .paymentButtonContent{width:67%; float: left; background-color: #1045DC; color: #FFFFFF;
+    font-size: 12px;
+    font-family: serif;
+    height: 40px;
+    line-height: 40px;
+    padding: 0px 10px;
+    text-transform: uppercase;
+    -webkit-border-top-right-radius: 8px;
+-moz-border-top-right-radius: 8px;
+border-top-right-radius: 8px;
+    -webkit-border-bottom-right-radius: 8px;
+-moz-border-bottom-right-radius: 8px;
+border-bottom-right-radius: 8px;
+}
+#paymentCustomerButtonsSection .customerSelectionAndSettings > div.row
+{
+  margin-left: 5px; margin-right: 5px; padding-top: 4px; padding-bottom: 4px;  background-color: #FFFFFF;
+  -webkit-border-radius: 8px;
+-moz-border-radius: 8px;
+border-radius: 8px;  position: absolute; left: 0px;right: 0px; z-index: 2; height: 40px; overflow: none; 
+}
+#paymentCustomerButtonsSection #paymentTypesAndOrderTypes #orderTypeSelection
+{
+  position: absolute; right: 0px; bottom: 0px; left: 0px; height: 40px; width:100%; color: #3a4247;
+}
+#paymentCustomerButtonsSection #paymentTypesAndOrderTypes #orderTypeSelection i.fa.fa-square{
+    color: white;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #3a4247;}
+#paymentCustomerButtonsSection #paymentTypesAndOrderTypes #orderTypeSelection i.fa.fa-check-square{
+  background-color: #3a4247;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #3a4247;
+    color: #FFF;
+}
+#paymentCustomerButtonsSection #paymentTypesAndOrderTypes #orderTypeSelection div.col-4{ text-align: center; font-size:16px; line-height: 40px; }
+
+#orderTypeSelection {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+#orderTypeSelection .table.orderTypes {
+
+  white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+#orderTypeSelection .table.orderTypes td{
+  border-top:none;
+}
+
+
+.customerSelectionAndSettings .row > div:first-child{ padding-left:0px; padding-right: 0px }
+.popup#saveInvoiceTableSelectionPopup{ postion:absolute; top: 15px; bottom : 15px; right:15px; left : 15px; overflow:auto; margin-left: 0px; width:calc(100% - 30px);}
+.popup, .popup2,.popup3 {display: none; position: absolute; top: 100px; left: 50%; width: 700px; margin-left: -350px; padding: 50px 30px;
+            background: #fff; color: #333; font-size: 19px; line-height: 30px; border: 10px solid #150E2D; z-index: 9999;}
+        .popup-mobile {position: relative; top: 0; left: 0; margin: 30px 0 0; width: 100%;}   
+          .popup-btn-close {position: absolute; top: 8px; right: 14px; color: #4EBD79; font-size: 14px; font-weight: bold; text-transform: uppercase; cursor: pointer;}
+.confirmationOverlay,.overlay,.overlay2{ position: absolute;top: 0px;left: 0px; right: 0px; bottom: 0px; background-color: rgba(0,0,0,0.6); z-index: 100; display:none;}
+#selectStoreTableBody tr:hover{
+  background-color: #EEEEEE;
+}
+
+
+  .easy-numpad-container{ left:calc(50% - 150px); max-width: 300px;width:300px;}
+.popup2 .row #numpadPopupHeading{ margin-bottom: 15px; line-height: 30px; width:100%; text-align: center;}
+.paypopup{display: none; position: absolute; top: 10px !important; left: 10px; right:10px; bottom: 10px;
+        overflow-x: hidden; overflow-y: auto;
+            background: #fff; color: #333; font-size: 19px; line-height: 30px; border: 10px solid #150E2D; z-index: 9999;
+        margin-left: unset; padding: 20px 20px;
+        width: calc(100% - 20px);
+        text-align: center;
+          }
+.paypopup .row{
+  margin-left: 0px; margin-right: 0px; width:100%; text-align: center;
+}
+.paypopup .payHolder{
+
+  width:100%;
+}
+.paypopup .payHolder .deliveryDateAndRefNum,.paypopup .payHolder .amountsSpecification{ width: 40%; max-width: 40%; overflow-x:hidden; float: left; }
+.paypopup .payHolder .cancelPaymentConfirmPaymentOrderRef{
+  width: calc(20% - 5px); max-width: calc(20% - 10px); overflow-x:hidden; float: left; margin-left: 10px; 
+}
+.payHolder table td,.payHolder table th{
+  padding: 5px; text-align: left;
+}
+.payHolder table  #paymentTypes{
+  max-height: 250px; min-height: 100px; font-size: 12px; overflow-y :auto;
+}
+.payHolder table  #paymentTypes table tr td{ padding: 8px 5px; }
+.payHolder table  #paymentTypes table tr td:last-child{text-align: right; padding-right:10px;};
+
+#discountTypeSelection,#quantityAlterationType{ display: none; }
+.popup3 .recallContainer{
+  top:0px; left: 0px; right: 0px; bottom: 0px;
+}
+.popup3 .recallHeading{
+  position:absolute; top:10px; left:0px; height: 40px; line-height: 40px; right: 0px;  width:100%; float: left;
+}
+.popup3 .recallHeading div.row > div{ text-align: center; }
+.popup3 .recallHeading div.row > div:last-child{ text-align: right; padding-right: 10px; }
+.popup3 .recallBody{
+  position: absolute; top:50px; left:0px; bottom: 0px; right: 0px; width:100%; float: left; overflow-y: auto;
+}
+.popup3 .recallBody .table-responsive table td{ font-family: Verdana ; font-size: 12px;}
+
+
+#itemSearchTextfield { display: none; }
+#itemSearchSpan { display: none; float: right;}
+
+#notesTextareaDiv{ display: none; }
+
+#recallBody table tbody tr:hover{ background-color: rgba(0,0,0,0.2); }
+#timeDisplay { display: none; }
+.popup#tableSelectionPopup { position:absolute;
+                                 top:10px !important;
+                                 left:10px !important;
+                                 right:10px !important;
+                                 bottom:10px !important;
+                                 overflow-y : auto;
+                                 width : calc(100% - 20px);
+                                 padding : 20px 20px !important;
+                                 margin-left:0px !important;
+ }
+
+@media only screen and (max-width: 720px) {
+  .headingSet{
+    height: 30px;
+  }
+  #leftHalf,#rightHalf { top:30px; }
+  #barcodeScanningSection{ height:30px; }
+.headingSet .storeInfo{ line-height: 30px; }
+
+#itemsWithSelection{ width:calc(70% - 4px); max-width:calc(70% - 4px); }
+#departmentsSelection{ width:30%; max-width:30%; }
+
+#itemsCartSection th{
+    font-size:10px;
+  }
+  #itemsCartSection tr{
+    font-size:10px;
+  }
+
+
+#leftButtonsSection #fourLeftButtons{  height: 26px; padding:0px;   }
+#paymentCustomerButtonsSection .row.categoriesSelection{ height:26px; margin-top:0px; }
+#leftButtonsSection #invoicePrintingAndSummary {  height: calc(100% - 26px); }
+#paymentCustomerButtonsSection .row.categoriesSelection .table .eachCategory {font-size:8px; height: 26px; line-height: 26px; font-weight: normal;}
+  #leftButtonsSection #fourLeftButtons > div.row > div.col-3 > button {font-size:8px; height: 22px; line-height: 22px; font-weight: normal; padding:0px; margin-top:2px;}
+
+  #myContainer #leftHalf{
+    width:50%;
+    float:left;
+  }
+  #myContainer #rightHalf{
+    width:50%;
+    float:left;
+  }
+
+
+  #voidReprintRecallSave div.row > div button{
+    font-size :8px;
+    padding-top:3px;
+    padding-bottom:3px;
+  }
+  #invoiceSummary .row .invoicesummaryLeftHeading{ font-size: 8px; height: 24px; line-height: 24px; overflow: hidden; }
+  #invoiceSummary .row .invoicesummaryRightContent{ font-size: 10px; height: 24px; line-height: 24px; overflow: hidden; }
+  #payButton .row{ margin-left:0px; margin-right: 0px; }
+
+  #invoiceSummary .row .col-12{ padding-left:3px; padding-right:3px; }
+
+  #itemsWithSelection .productImageAndName{ width:33%; }
+
+  #departmentsSelection .eachDepartment{ font-size: 9px; }
+#paymentButtons .col-4#cashPaymentButton,#paymentButtons .col-4#cardPaymentButton { width:40px; }
+  #paymentCustomerButtonsSection #paymentTypesAndOrderTypes #holderTable{ display: none; }
+
+#itemsWithSelection .productImageAndName{ margin-bottom: 1px; }
+  #itemsWithSelection .productImageAndName .productName{ font-size: 10px; line-height: 16px; height: 60px; }
+
+
+#orderTypeSelection .table.orderTypes td{
+  font-size: 12px;
+  width:auto;
+  padding-right: 8px;
+  }
+  .headingSet .storeInfo{ font-size: 8px; }
+  .headingSet .storeInfo span{font-size: 8px;}
+  .headingSet .row > div:last-child{ padding-left:0px; }
+
+  .customerSelectionAndSettings .row > div:first-child{ font-size: 9px; }
+  .customerSelectionAndSettings .row > div i.fa-cog{ font-size: 16px; }
+  .paypopup{display: none; position: absolute; top: 10px !important; left: 10px; right:10px; bottom: 10px;
+        overflow-x: hidden; overflow-y: auto;
+            background: #fff; color: #333; font-size: 19px; line-height: 30px; border: 10px solid #150E2D; z-index: 9999;
+        margin-left: unset; padding: 20px 20px;
+        width: calc(100% - 20px);
+          }
+  .popup {display: none; position: absolute; top: 20px !important; left: 20px; right:20px; bottom: 20px;
+        overflow-x: hidden; overflow-y: auto;
+            background: #fff; color: #333; font-size: 19px; line-height: 30px; border: 10px solid #150E2D; z-index: 9999;
+        margin-left: unset; padding: 20px 20px;
+        width: calc(100% - 40px);
+          }
+.popup2 {display: none; position: absolute; top: 10px !important; left: 10px; right:10px; bottom: 10px;
+        overflow-x: hidden; overflow-y: auto;
+            background: #fff; color: #333; font-size: 19px; line-height: 30px; border: 10px solid #150E2D; z-index: 9999;
+        margin-left: unset; padding: 10px 30px;
+        width: calc(100% - 20px);
+          }
+.popup3{
+  display: none; position: absolute; top: 10px !important; left: 10px; right:10px; bottom: 10px;
+        overflow-x: hidden; overflow-y: auto;
+            background: #fff; color: #333; font-size: 19px; line-height: 30px; border: 10px solid #150E2D; z-index: 9999;
+        margin-left: unset; padding: 10px 30px;
+        width: calc(100% - 20px);
+
+}
+.easy-numpad-output{ min-height: 30px !important; font-size: 12px !important; max-height: 30px !important; }
+#itemsCartSection{margin-top: 3px;}
+.popup2 .row #numpadPopupHeading{ font-size: 14px !important; line-height: 22px !important; margin-bottom: 5px; }
+.popup2 .row #discountTypeSelection,.popup2 .row #quantityAlterationType{font-size: 14px !important; line-height: 22px !important; margin-bottom: 5px; }
+.popup2 .row #discountTypeSelection div.form-group,.popup2 .row #quantityAlterationType div.form-group{ margin-bottom: 0px; }
+.easy-numpad-container{ max-width: 220px; width:220px !important; left: calc(50% - 110px); }
+.easy-numpad-number-container > table a { padding: 13px 8px !important; font-size: 11px !important; line-height: 11px; }
+.paypopup .payHolder .deliveryDateAndRefNum,.paypopup .payHolder .amountsSpecification{ font-size: 11px; }
+.paypopup .payHolder .deliveryDateAndRefNum,.paypopup .payHolder .amountsSpecification td,.paypopup .payHolder label{ font-size: 11px; }
+.popup3 .recallBody .table-responsive table td{ font-family: Verdana ; font-size: 9px;}
+
+  h3#confirmationHeading{ font-size:16px; }
+    #itemSearchSpan { font-size: 12px;}
+
+    #invoiceSummaryContainer table.table td{ font-size: 10px; line-height: 14px; }
+    #voidReprintRecallSave .fullWidthButtonWhite .btn-circle{ width: 22px; height: 22px; font-size: 8px; line-height: 8px;}
+  #invoiceSummaryContainer{ width: calc(100% - 10px); margin-left: 5px; margin-right: 5px; }    
+}
+@media only screen and (max-width: 980px) and (min-width: 721px){
+                                                                   .headingSet{
+                                                                     height: 30px;
+                                                                   }
+                                                                   #leftHalf,#rightHalf { top:30px; }
+                                                                   #barcodeScanningSection{ height:30px; }
+                                                                 .headingSet .storeInfo{ line-height: 30px; }
+
+                                                                 #itemsWithSelection{ width:calc(70% - 4px); max-width:calc(70% - 4px); }
+                                                                 #departmentsSelection{ width:30%; max-width:30%; }
+
+                                                                 #itemsCartSection th{
+                                                                     font-size:10px;
+                                                                   }
+                                                                   #itemsCartSection tr{
+                                                                     font-size:10px;
+                                                                   }
+
+
+                                                                 #leftButtonsSection #fourLeftButtons{  height: 26px; padding:0px;   }
+                                                                 #paymentCustomerButtonsSection .row.categoriesSelection{ height:26px; margin-top:0px; }
+                                                                 #leftButtonsSection #invoicePrintingAndSummary {  height: calc(100% - 26px); }
+                                                                 #paymentCustomerButtonsSection .row.categoriesSelection .table .eachCategory {font-size:8px; height: 26px; line-height: 26px; font-weight: normal;}
+                                                                   #leftButtonsSection #fourLeftButtons > div.row > div.col-3 > button {font-size:8px; height: 22px; line-height: 22px; font-weight: normal; padding:0px; margin-top:2px;}
+
+                                                                   #myContainer #leftHalf{
+                                                                     width:50%;
+                                                                     float:left;
+                                                                   }
+                                                                   #myContainer #rightHalf{
+                                                                     width:50%;
+                                                                     float:left;
+                                                                   }
+
+
+                                                                   #voidReprintRecallSave div.row > div button{
+                                                                     font-size :8px;
+                                                                     padding-top:3px;
+                                                                     padding-bottom:3px;
+                                                                   }
+                                                                   #invoiceSummary .row .invoicesummaryLeftHeading{ font-size: 8px; height: 24px; line-height: 24px; overflow: hidden; }
+                                                                   #invoiceSummary .row .invoicesummaryRightContent{ font-size: 10px; height: 24px; line-height: 24px; overflow: hidden; }
+                                                                   #payButton .row{ margin-left:0px; margin-right: 0px; }
+
+                                                                   #invoiceSummary .row .col-12{ padding-left:3px; padding-right:3px; }
+
+                                                                   #itemsWithSelection .productImageAndName{ width:33%; }
+
+                                                                   #departmentsSelection .eachDepartment{ font-size: 9px; }
+                                                                 #paymentButtons .col-4#cashPaymentButton,#paymentButtons .col-4#cardPaymentButton { width:40px; }
+                                                                   #paymentCustomerButtonsSection #paymentTypesAndOrderTypes #holderTable{ display: none; }
+
+                                                                 #itemsWithSelection .productImageAndName{ margin-bottom: 1px; }
+                                                                   #itemsWithSelection .productImageAndName .productName{ font-size: 10px; line-height: 16px; height: 60px; }
+
+
+                                                                 #orderTypeSelection .table.orderTypes td{
+                                                                   font-size: 12px;
+                                                                   width:auto;
+                                                                   padding-right: 8px;
+                                                                   }
+                                                                   .headingSet .storeInfo{ font-size: 8px; }
+                                                                   .headingSet .storeInfo span{font-size: 8px;}
+                                                                   .headingSet .row > div:last-child{ padding-left:0px; }
+
+                                                                   .customerSelectionAndSettings .row > div:first-child{ font-size: 9px; }
+                                                                   .customerSelectionAndSettings .row > div i.fa-cog{ font-size: 16px; }
+                                                                   .paypopup{display: none; position: absolute; top: 10px !important; left: 10px; right:10px; bottom: 10px;
+                                                                         overflow-x: hidden; overflow-y: auto;
+                                                                             background: #fff; color: #333; font-size: 19px; line-height: 30px; border: 10px solid #150E2D; z-index: 9999;
+                                                                         margin-left: unset; padding: 20px 20px;
+                                                                         width: calc(100% - 20px);
+                                                                           }
+                                                                   .popup {display: none; position: absolute; top: 20px !important; left: 20px; right:20px; bottom: 20px;
+                                                                         overflow-x: hidden; overflow-y: auto;
+                                                                             background: #fff; color: #333; font-size: 19px; line-height: 30px; border: 10px solid #150E2D; z-index: 9999;
+                                                                         margin-left: unset; padding: 20px 20px;
+                                                                         width: calc(100% - 40px);
+                                                                           }
+                                                                 .popup2 {display: none; position: absolute; top: 10px !important; left: 10px; right:10px; bottom: 10px;
+                                                                         overflow-x: hidden; overflow-y: auto;
+                                                                             background: #fff; color: #333; font-size: 19px; line-height: 30px; border: 10px solid #150E2D; z-index: 9999;
+                                                                         margin-left: unset; padding: 10px 30px;
+                                                                         width: calc(100% - 20px);
+                                                                           }
+                                                                 .popup3{
+                                                                   display: none; position: absolute; top: 10px !important; left: 10px; right:10px; bottom: 10px;
+                                                                         overflow-x: hidden; overflow-y: auto;
+                                                                             background: #fff; color: #333; font-size: 19px; line-height: 30px; border: 10px solid #150E2D; z-index: 9999;
+                                                                         margin-left: unset; padding: 10px 30px;
+                                                                         width: calc(100% - 20px);
+
+                                                                 }
+                                                                 .easy-numpad-output{ min-height: 30px !important; font-size: 12px !important; max-height: 30px !important; }
+                                                                 #itemsCartSection{margin-top: 3px;}
+                                                                 .popup2 .row #numpadPopupHeading{ font-size: 14px !important; line-height: 22px !important; margin-bottom: 5px; }
+                                                                 .popup2 .row #discountTypeSelection,.popup2 .row #quantityAlterationType{font-size: 14px !important; line-height: 22px !important; margin-bottom: 5px; }
+                                                                 .popup2 .row #discountTypeSelection div.form-group,.popup2 .row #quantityAlterationType div.form-group{ margin-bottom: 0px; }
+                                                                 .easy-numpad-container{ max-width: 220px; width:220px !important; left: calc(50% - 110px); }
+                                                                 .easy-numpad-number-container > table a { padding: 13px 8px !important; font-size: 11px !important; line-height: 11px; }
+                                                                 .paypopup .payHolder .deliveryDateAndRefNum,.paypopup .payHolder .amountsSpecification{ font-size: 11px; }
+                                                                 .paypopup .payHolder .deliveryDateAndRefNum,.paypopup .payHolder .amountsSpecification td,.paypopup .payHolder label{ font-size: 11px; }
+                                                                 .popup3 .recallBody .table-responsive table td{ font-family: Verdana ; font-size: 9px;}
+
+                                                                   h3#confirmationHeading{ font-size:16px; }
+                                                                     #itemSearchSpan { font-size: 12px;}
+
+                                                                     #invoiceSummaryContainer table.table td{ font-size: 10px; line-height: 14px; }
+                                                                     #voidReprintRecallSave .fullWidthButtonWhite .btn-circle{ width: 22px; height: 22px; font-size: 8px; line-height: 8px;}
+                                                                   #invoiceSummaryContainer{ width: calc(100% - 10px); margin-left: 5px; margin-right: 5px; }
+                                                                 }
+/* end Of Small Screen Styling */
+
+@media only screen and (max-width: 1279px) and (min-width: 981px){
+  .headingSet{
+    height: 40px;
+  }
+  #barcodeScanningSection{ height:35px; }
+  #leftHalf,#rightHalf { top:40px; }
+.headingSet .storeInfo{ line-height: 40px; }
+  #itemsCartSection th{
+    font-size:12px;
+  }
+  #itemsCartSection tr{
+    font-size:12px;
+  }
+  
+  .popup3{ left:10px; right: 10px; top:10px; bottom: 10px; margin-left: 0px; width: calc(100% - 20px); height:calc(100% - 20px);}
+
+  #leftButtonsSection #fourLeftButtons > div.row > div.col-3 > button {font-size:10px; font-weight: normal;}
+
+  #invoiceSummary .row .invoicesummaryLeftHeading{ font-size: 8px; height: 24px; line-height: 24px; overflow: hidden; }
+  #invoiceSummary .row .invoicesummaryRightContent{ font-size: 10px; height: 24px; line-height: 24px; overflow: hidden; }
+  
+  #voidReprintRecallSave div.row > div button{ font-size: 9px; }
+
+  #itemsWithSelection .productImageAndName{ width:25%; }
+  .popup, .popup2,.popup3 { min-height: 300px; }
+}
+
+/* end of medium screen styling */
+@media only screen and (min-width: 1280px) {
+  .headingSet{
+    height: 40px;
+  }
+  #leftHalf,#rightHalf { top:40px; }
+  #barcodeScanningSection{ height:40px; }
+.headingSet .storeInfo{ line-height: 40px; }
+  #itemsCartSection th{
+    font-size:14px;
+  }
+  #itemsCartSection tr{
+    font-size:14px;
+  }
+  #voidReprintRecallSave div.row > div button i.fa{ font-size: 18px; }
+  #itemsWithSelection .productImageAndName{ width:25%; }
+  .popup3{ left:10px; right: 10px; top:10px; bottom: 10px; margin-left: 0px; width: calc(100% - 20px); height:calc(100% - 20px);; }
+
+  .popup, .popup2,.popup3 { min-height: 300px; }
+  #timeDisplayDiv, #timeDisplay{ display: block; }
+}  
+/* end of large screen styling */

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Barcode Printing Page</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1"><!-- file:///android_asset/ -->
+    <script src="js/jquery-3.6.1.js" ></script>
+
+    <!-- <script src="jquery.js" ></script> -->
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="bootstrap/css/bootstrap-grid.css" />
+    <!-- <link rel="stylesheet" href="fontawesome/css/all.css" /> -->
+    <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.css" />
+    <script src="bootstrap/js/bootstrap.js"></script>
+    <script src="bootstrap/bootbox/bootbox.js"></script>
+    <!-- <script src="fontawesome/js/fontawesome.js"></script> -->
+    <script src="fontawesome/js/fontawesome.js"></script>
+    <!-- Ionicons -->
+
+    <link rel="stylesheet" href="css/login.css" />
+
+    <style type="text/css">
+#preprintvalues{
+	display: none;
+}
+*{ margin:0px;padding: 0px; }
+
+a.btn{ padding-left:0px; }
+        </style>
+    <script src="js/login.js"></script>
+
+</head>
+<body>
+        <div class="main">
+            <div class="wrapper">
+                <div class="container">
+                    <div class="row"><div class="col-lg-12 col-xs-12 loginheading"><span>Login</span></div></div>
+                <div class="row">
+                <div class="col-lg-12 col-xs-12">
+                    <button class="btn btn-warning btn-lg" onclick="showConfigurationSettingsModal();"><i class="fa fa-cog"></i> Configuration Settings</button>
+                </div>
+                </div>
+                <div class="row">
+                    <div class="entercredentialsheading">
+                        Please Enter Your Credentials
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-10 offset-1 col-lg-4 offset-lg-4 col-xs-8 offset-xs-2 col-md-8 offset-xs-2 col-sm-8 offset-sm-2">
+                        <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="userloginspan"><i class="fa fa-user"></i></span>
+                        </div>
+                        <input type="text" name="username" value="" id="username" class="form-control  shadow-none" placeholder="Enter your Username" aria-label="Username" aria-describedby="userloginspan" />
+                            <input type="hidden" name="typeofuser" id="typeofuser" value="emp" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-10 offset-1 col-lg-4 offset-lg-4 col-xs-8 offset-xs-2 col-md-8 offset-xs-2 col-sm-8 offset-sm-2">
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="userpasswordspan"><i class="fa fa-lock"></i></span>
+                            </div>
+                            <input type="password" name="password" value="admin" id="password" class="form-control  shadow-none" placeholder="Enter your password" aria-label="Username" aria-describedby="userpasswordspan">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-10 offset-1 col-lg-4 offset-lg-4 col-xs-8 offset-xs-2 col-md-8 offset-xs-2 col-sm-8 offset-sm-2">
+                        <div class="input-group mb-3">
+                            <input class="customcheckbox"  type="checkbox" id="rememberme" value="Rememberme">
+                            <label class="form-check-label-rememberme" for="rememberme">Remember Me</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-10 offset-1 col-lg-4 offset-lg-4 col-xs-8 offset-xs-2 col-md-8 offset-xs-2 col-sm-8 offset-sm-2">
+                            <button class="btn loginbutton" onclick="javascript:loginCall();" type="button">&nbsp;<i class="fa fa-sign-in"></i>&nbsp;&nbsp;Login&nbsp;</button>
+                    </div>
+
+                </div>
+                </div>
+            </div>
+        </div>
+    <!-- Modal -->
+
+        <!-- Modal -->
+        <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true"id="myModal" >
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Configuration Settings</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="table-responsive">
+                                <table class="table table-striped" id="paramsTable">
+                                    <tr valign="middle">
+                                        <td>Company ID</td><td><input class="form-control" placeholder="company id" value="" name="companyid" id="companyid" /></td><td><button class="btn btn-circle btn-lg btn-success" onclick="javascript:saveCompanyID();"><i class="fa fa-check"></i></button></td>
+                                    </tr>
+                                    <tr valign="middle">
+                                        <td colspan="3" style="text-align:center; "><h4>Mysql Host Address &amp; User ID &amp; Password &amp; Port Number</h4></td>
+                                    </tr>
+                                    <tr valign="middle">
+                                        <td colspan="2"><table>
+                                            <tr>
+                                                <th>IP Address Of Server</th>
+                                                <th>User ID</th>
+                                            </tr>
+                                            <tr>
+                                                <td><input class="form-control" placeholder="Server Host IP Address" name="hostaddress" id="hostaddress" value="" /></td>
+                                                <td><input class="form-control" placeholder="User ID" name="mysqluserid" id="mysqluserid" value="" /></td>
+                                            </tr>
+                                            <tr>
+                                                <th>Password</th>
+                                                <th>Mysql Port Number(3306)</th>
+                                            </tr>
+                                            <tr>
+                                                <td><input class="form-control" type="password" placeholder="Mysql Password" name="mysqlpassword" id="mysqlpassword" value="" /></td>
+                                                <td><input class="form-control" type="number" name="mysqluserportnumber" placeholder="Port Number" id="mysqluserportnumber" value="" /></td>
+                                            </tr>
+                                            <tr>
+                                                <th>Apache Port Number</th>
+                                                <td><input class="form-control" type="number" placeholder="Apache Port Number" name="apacheportnumber" id="apacheportnumber" /></td>
+
+                                            </tr>
+                                        </table> </td>
+                                        <td><button class="btn btn-circle btn-lg btn-success" onclick="javascript:saveMysqlDetails();"><i class="fa fa-check"></i></button></td>
+                                    </tr>
+                                    <tr valign="middle">
+                                        <td>Screen Orientation For POS</td><td><select class="form-control" name="screenorientation" id="screenorientation">
+                                        <option value="landscape">Landscape</option>
+                                        <option value="portrait">Portrait</option>
+                                    </select></td><td><button class="btn btn-circle btn-lg btn-success" onclick="javascript:savescreenOrientationForPOS();"><i class="fa fa-check"></i></button></td>
+                                    </tr>
+                                </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+</body>
+</html>

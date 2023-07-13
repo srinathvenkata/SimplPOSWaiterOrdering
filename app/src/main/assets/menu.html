@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Barcode Printing Page</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1"><!-- file:///android_asset/ -->
+    <script src="js/jquery-3.6.1.js" ></script>
+
+    <!-- <script src="jquery.js" ></script> -->
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="bootstrap/css/bootstrap-grid.css" />
+    <!-- <link rel="stylesheet" href="fontawesome/css/all.css" /> -->
+    <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.css" />
+    <script src="bootstrap/js/bootstrap.js"></script>
+    <script src="bootstrap/bootbox/bootbox.js"></script>
+    <!-- <script src="fontawesome/js/fontawesome.js"></script> -->
+    <script src="fontawesome/js/fontawesome.js"></script>
+    <!-- Ionicons -->
+
+    <link rel="stylesheet" href="css/menu.css" />
+
+    <style type="text/css">
+#preprintvalues{
+	display: none;
+}
+*{ margin:0px;padding: 0px; }
+
+a.btn{ padding-left:0px; }
+        </style>
+    <script src="js/menu.js"></script>
+
+</head>
+<body>
+<div class="main">
+    <div class="wrapper">
+        <div class="container">
+            <div class="row">
+                <div class="offset-lg-4 col-lg-4 offset-md-3 col-md-6 offset-sm-3 col-sm-6 offset-xs-2 col-xs-8">
+                    <button class="btn btn-block btn-lg btn-success" onclick="javascript:goToPos();"><i class="fa fa-laptop"></i> POS</button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="offset-lg-4 col-lg-4 offset-md-3 col-md-6 offset-sm-3 col-sm-6 offset-xs-2 col-xs-8">
+                    <button class="btn btn-block btn-lg btn-secondary"  onclick="javascript:goToSettingsPage();"><i class="fa fa-cog"></i> Settings</button>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="offset-lg-4 col-lg-4 offset-md-3 col-md-6 offset-sm-3 col-sm-6 offset-xs-2 col-xs-8">
+                    <button class="btn btn-block btn-lg btn-info" onclick="javascript:goToHardware();"><i class="fa fa-print"></i> Hardware</button>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="offset-lg-4 col-lg-4 offset-md-3 col-md-6 offset-sm-3 col-sm-6 offset-xs-2 col-xs-8">
+                    <!-- <button class="btn btn-block btn-lg btn-warning"><i class="fa fa-bar-chart-o"></i> Reports</button> -->
+                    <button class="btn btn-block btn-lg btn-warning" id="copyDataFromServerBtn" onclick="javascript:copyProductsData();"><i class="fa fa-copy"></i> Copy Data From Server</button>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="offset-lg-4 col-lg-4 offset-md-3 col-md-6 offset-sm-3 col-sm-6 offset-xs-2 col-xs-8">
+                    <button class="btn btn-block btn-lg btn-danger" onclick="javascript:logoutuser();"><i class="fa fa-power-off"></i> Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="showLoadingModal" class="modal hide" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Please wait...</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p style="text-align:center;"><img style="" src="img/loading.gif" /></p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

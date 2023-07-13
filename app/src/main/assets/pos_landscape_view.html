@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0"/>
+
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <script src="js/jquery-3.6.1.js"></script>
+    <script src="js/posWebView.js"></script>
+    <script src="js/tableSelection.js"></script>
+    <script src="js/posWebViewInvoicing.js"></script>
+    <script src="js/recallFecthandSaveItemSearch.js"></script>
+    <script src="bootstrap/js/bootstrap.js"></script>
+    <script src="js/bootbox.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap-switch.css">
+    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+    <link rel="stylesheet" type="text/css" href="css/posWebView.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap_tabs.css">
+    <link rel="stylesheet" type="text/css" href="fontawesome/css/all.css" />
+    <link rel="stylesheet" type="text/css" href="fontawesome/css/fontawesome.css" />
+    <script src="VisualNumpad/js/easy-numpad.js"></script>
+    <link rel="stylesheet" href="VisualNumpad/css/easy-numpad.css">
+
+    <script src="js/bootstrap-switch.js"></script>
+
+
+    <style>
+
+    </style>
+</head>
+<body>
+<div id="completeHolder">
+    <div class="headingSet">
+        <div class="centerHolder">
+            <div class="centercontent">
+                <div class="row">
+                    <div class="col-1 storeInfo" id="backMenuButton" style="text-align: left;">&nbsp;&nbsp;&nbsp;<i class="fa fa-2x fa-bars"></i></div>
+                    <div class="col-4 storeInfo" id="selectStoreDiv" style="text-align: left;">
+                        &nbsp;&nbsp;&nbsp;&nbsp; Select Store&nbsp;&nbsp;<i class="fa fa-building"></i></div>
+                    <div class="col-2 storeInfo" id="defaultPageHeadButtons" style="padding-left: 0px; padding-right: 0px;">
+                        <button type="button" id="cameraBarcodeScanning" class="btn btn-circle btn-small"><i class="fa fa-camera"></i></button>&nbsp;&nbsp;&nbsp;POS&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-circle btn-small"><i class="fa fa-retweet"></i></button>
+                    </div>
+                    <div class="col-2 storeInfo" id="pageHead" style="padding-left: 0px; padding-right: 0px;">
+                        <div id="tableSelectionButton"><button id="tableSelectionBtn" class="btn btn-info btn-sm" >Select Table</button><span id="tableSelectionSpan"></span></div>
+
+                    </div>
+
+                    <div class="col-5 col-lg-4 storeInfo" style="text-align: right;">
+                        Store ID : <span id="selectedStoreId">Store 1</span>&nbsp;&nbsp;
+                        Employee ID : <span id="loggedInUserId">Cashier 1</span>&nbsp;&nbsp;
+
+                    </div>
+                    <div class="col-lg-1 storeInfo" id="timeDisplayDiv">
+                        <span  id="timeDisplay">14:01</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div id="myContainer">
+        <div id="leftHalf">
+            <div id="barcodeScanningSection">
+                <div class="centerHolder">
+                    <div class="centercontent">
+                        <div class="scanBarcodeInputDiv"><input type="text" placeholder="Scan Barcode" id="barcodeNumber" name="barcodeNumber" class="barcodeScanInput" /> </div>
+                        <div class="itemQtyForBarcodeInputDiv">
+                            <input type="text" placeholder="Quantity" name="itemQtyBarcode"  id="itemQty" class="barcodeScanInput" />
+                        </div>
+                        <div class="goButtonForScan">
+                            <button type="button" id="goForScan" class="fullWidthButton greenButton"><i class="fa fa-share"></i> Go</button>
+                        </div>
+                        <div class="searchButtonForScan">
+                            <button type="button" id="searchForScan" class="fullWidthButton orangeButton"><i class="fa fa-search-plus"></i>&nbsp;&nbsp; Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="itemsCartSection">
+                <div class="table-responsive">
+                    <input type="hidden" name="invoiceStoreId" id="invoiceStoreId" value="" />
+                    <form action="" onsubmit="return false;" method="post" id="invoiceAndItemsForm">
+                        <input type="hidden" name="tableNumberSelectionFromPopup" id="tableNumberSelectionFromPopup" value="" />
+                        <input type="hidden" name="recallInvoiceId" id="recallInvoiceId" value="" />
+                        <input type="hidden" name="holdInvoiceId" id="holdInvoiceId" value="" />
+                        <input type="hidden" name="subTotal" id="subTotal" value="" />
+                        <input type="hidden" name="categoryWiseTax"  id="categoryWiseTax" value="" />
+                        <input type="hidden" name="overallTax"  id="overallTax" value="" />
+                        <input type="hidden" name="grandTotal" id="grandTotal" value="" />
+                        <input type="hidden" name="customerIdForInvoice" id="customerIdForInvoice" value="" />
+                        <input type="hidden" name="orderDeliveryDate" id="orderDeliveryDate" value="" />
+                        <input type="hidden" name="deletedItemsUniqueIdsFromSavedInvoice" id="deletedItemsUniqueIdsFromSavedInvoice" value="" />
+                        <input type="hidden" name="paymentType1" id="paymentType1" value="" />
+                        <input type="hidden" name="paymentType2" id="paymentType2" value="" />
+                        <input type="hidden" name="paymentType3" id="paymentType3" value="" />
+                        <input type="hidden" name="paymentType4" id="paymentType4" value="" />
+                        <input type="hidden" name="modeOfPayment1" id="modeOfPayment1" value="" />
+                        <input type="hidden" name="modeOfPayment2" id="modeOfPayment2" value="" />
+                        <input type="hidden" name="modeOfPayment3" id="modeOfPayment3" value="" />
+                        <input type="hidden" name="modeOfPayment4" id="modeOfPayment4" value="" />
+                        <input type="hidden" name="paymentRefNo1" id="paymentRefNo1" value="" />
+                        <input type="hidden" name="paymentRefNo2" id="paymentRefNo2" value="" />
+                        <input type="hidden" name="paymentRefNo3" id="paymentRefNo3" value="" />
+                        <input type="hidden" name="paymentRefNo4" id="paymentRefNo4" value="" />
+                        <input type="hidden" name="changeTendered" id="changeTendered" value="" />
+
+                        <table class="table" id="itemsTable">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Item No.</th>
+                                <th>Item Name</th>
+                                <th>Qty</th>
+                                <th>Unit</th>
+                                <th>Price</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                            </thead>
+                            <tbody id="itemsFormBody">
+                            <!--
+                            <tr>
+                                <td>1</td>
+                                <td>Mark</td>
+                                <td>Otto</td>
+                                <td>@mdo</td>
+                                <td>Otto</td>
+                                <td>@mdo</td>
+                                <td><button class="btn btn-circle btn-small"><i class="fa fa-trash"></i></button></td>
+                            </tr>
+                            -->
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+            </div>
+            <div id="leftButtonsSection">
+                <div id="fourLeftButtons">
+                    <div class="row">
+                        <div class="col-3"><button type="button" id="notesButton"  class="fullWidthButton fourButtonsOdd">Notes</button></div>
+                        <div class="col-3"><button type="button" id="discountButton" class="fullWidthButton fourButtonsEven">Discount</button></div>
+                        <div class="col-3"><button type="button" id="changePriceButton" class="fullWidthButton fourButtonsOdd">Price Change</button></div>
+                        <div class="col-3"><button type="button" id="changeQtyButton" class="fullWidthButton fourButtonsEven">Change Quantity</button></div>
+                    </div>
+                </div>
+                <div id="invoicePrintingAndSummary">
+                    <div id="voidReprintRecallSave">
+                        <div class="centerHolder">
+                            <div class="centercontent">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <button type="button" id="voidInvoiceBtn" class="fullWidthButtonWhite">
+                                            <a href="javascript:{}" class="btn btn-circle btn-primary btn-xs" style="background-color: #e94e4a;border-color: transparent;"><i class="fa fa-times"></i></a><br />
+                                            Void&nbsp;Invoice</button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button type="button" id="recallInvoiceBtn" class="fullWidthButtonWhite"><a href="javascript:{}" class="btn btn-circle btn-primary btn-xs" style="background-color: #2bb6d7;border-color: transparent;"><i class="fa fa-arrow-down"></i></a><br /><div id="recallButtonContent">Recall&nbsp;Invoice</div>
+                                            <div id="clearrecallButtonContent">Clear</div>
+                                        </button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button type="button" id="fetchandSaveInvoiceButton" class="fullWidthButtonWhite"><a href="javascript:{}" class="btn btn-circle btn-primary btn-xs" style="background-color: #76B40D;border-color: transparent;"><i class="fa fa-tasks"></i></a><br /><span id="fetchandSaveInvoiceButtonSpan">Fetch&nbsp;Invoice</span></button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button type="button" id="printLastInvoiceBtn" class="fullWidthButtonWhite"><a href="javascript:{}" class="btn btn-circle btn-primary btn-xs" style="background-color: #FD9A19;border-color: transparent;"><i class="fa fa-print"></i></a><br />Reprint&nbsp;Invoice</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="invoiceSummary">
+                        <div class="centerHolder">
+                            <div class="centercontent">
+                                <div class="table-responsive" id="invoiceSummaryContainer">
+                                    <table class="table table-striped">
+                                        <tbody>
+                                        <tr><td class="">Total Qty</td><td class="" id="totalQtyOfItemsDisplay">0</td></tr>
+                                        <tr><td class="">Sub Total</td>
+                                            <td class="" id="subTotalOfInvoice">0 <span class="currencyHolder">&#8377;</span></td></tr>
+                                        <tr><td class="">Taxes</td><td class="" id="taxesOfInvoice">0 <span class="currencyHolder">&#8377;</span></td></tr>
+                                        <tr><td class=""><b>Grand Total</b></td><td class="" id="grandTotalOfInvoice"><b>0 <span class="currencyHolder">&#8377;</span></b></td></tr>
+
+                                        </tbody>
+
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="payButton">
+                        <div class="centerHolder">
+                            <div class="centercontent">
+                                <button type="button" class="fullWidthButton" id="payInvoiceButton"><i class="fa fa-shopping-cart"></i><br />PAY</button>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="rightHalf">
+            <div id="itemsSelector">
+                <div id="departmentsSelection">
+                    <div class="eachDepartment">Food</div>
+                    <div class="eachDepartment active">Grocery</div>
+                    <div class="eachDepartment">Biryani</div>
+                    <div class="eachDepartment">Tandoori</div>
+                </div>
+                <div id="itemsWithSelection" class="withImages">
+                    <div class="productsForDepartmentsHolder" id="defaultProducts"><!-- withImages -->
+                        <div class="productImageAndName">
+                            <div class="productImage"><img src="https://www.srpointofsale.com/crm/product_images/demo/thumb_361aed433d71dd312093dddfbd7f3234.jpg" /></div>
+                            <div class="productName">Chicken Biryani</div>
+                        </div>
+
+                        <div class="productImageAndName">
+                            <div class="productImage"><img src="https://www.srpointofsale.com/crm/product_images/demo/thumb_4c8dc9aaff066dbfb699436ceb62d81a.jpg" /></div>
+                            <div class="productName">Mutton Family Pack</div>
+                        </div>
+
+                        <div class="productImageAndName">
+                            <div class="productImage"><img src="https://www.srpointofsale.com/crm/product_images/demo/thumb_92264c1fb2557963eb2b4705a7c734dd.jpg" /></div>
+                            <div class="productName">Chicken Jumbo Biryani</div>
+                        </div>
+
+                        <div class="productImageAndName">
+                            <div class="productImage"><img src="https://www.srpointofsale.com/crm/product_images/demo/thumb_361aed433d71dd312093dddfbd7f3234.jpg" /></div>
+                            <div class="productName">Schezwan Chicken</div>
+                        </div>
+
+                        <div class="productImageAndName">
+                            <div class="productImage"><img src="https://www.srpointofsale.com/crm/product_images/demo/thumb_b8612a25a58d1ab044ff96d1bf3f4553.jpg" /></div>
+                            <div class="productName">Panneer Tikka</div>
+                        </div>
+
+                        <div class="productImageAndName">
+                            <div class="productImage"><img src="https://www.srpointofsale.com/crm/product_images/demo/thumb_361aed433d71dd312093dddfbd7f3234.jpg" /></div>
+                            <div class="productName">Chicken Do Pyaza</div>
+                        </div>
+
+                        <div class="productImageAndName">
+                            <div class="productImage"><img src="https://www.srpointofsale.com/crm/product_images/demo/thumb_52b519e00f60fe23098622ca42432bbd.jpg" /></div>
+                            <div class="productName">Chicken 65 + Chilli Chicken Combo</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="paymentCustomerButtonsSection">
+                <div class="row categoriesSelection">
+                    <table class="table">
+                        <tbody>
+                        <tr>
+                            <td><div class="eachCategory">All</div></td>
+                            <td><div class="eachCategory active">South Indian</div></td>
+                            <td><div class="eachCategory">North Indian</div></td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+
+
+
+                </div>
+                <div id="paymentTypesAndOrderTypes">
+                    <div class="customerSelectionAndSettings">
+                        <div class="row" style="">
+                            <div class="col-6" style=" line-height: 32px;">&nbsp;&nbsp;<button type="button" class="btn btn-circle customerSelectionButton"><i class="fa fa-user"></i></button>&nbsp;<span id="customerLabel">Customer :</span>&nbsp;
+                                <span id="customerNameDisplay"></span></div>
+                            <div class="col-3"><button id="printPreviewButton" class="btn btn-circle orangeButton"><i class="fa fa-print"></i></button></div>
+                            <div class="col-3" style="text-align: right; line-height: 32px;" id="advancedSettings"><i class="fa fa-2x fa-cog"></i></div>
+                        </div>
+                    </div>
+                    <div id="holderTable">
+                        <div id="paymentButtons">
+
+                            <div class="row" style="margin-left: 0px; margin-right: 0px;">
+
+                                <div class="col-4" id="cashPaymentButton">
+                                    <div class="paymentButtonIcon"><img style="" src="img/rupee-symbol.png" /></div>
+                                    <div class="paymentButtonContent">Cash</div>
+                                </div>
+
+                                <div class="col-4" id="cardPaymentButton">
+                                    <div class="paymentButtonIcon"><i class="fa fa-2x fa-credit-card"></i></div>
+                                    <div class="paymentButtonContent">Card</div>
+                                </div>
+
+                                <div class="col-3" id="upiPaymentButton">
+                                    <div class="paymentButtonIcon"><i class="fa fa-2x fa-qrcode"></i></div>
+                                    <div class="paymentButtonContent">UPI</div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div id="orderTypeSelection">
+                        <div class="row" style="margin-left: 0px; margin-right: 0px;">
+                            <div class="table-responsive">
+                                <table class="table orderTypes">
+                                    <tbody>
+                                    <tr>
+                                        <td  id="storeSaleTD"><i class="fa fa-square"></i>&nbsp;&nbsp;<span id="storeSaleSpan">Dine In</span></td>
+                                        <td id="takeAwayTD"><i class="fa fa-check-square"></i>&nbsp;&nbsp;<span id="takeAwaySpan">Take Away</span></td>
+                                        <td id="homeDeliveryTD"><i class="fa fa-square"></i>&nbsp;&nbsp;<span id="homeDeliverySpan">Home Delivery</span></td>
+                                    </tr>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="paypopup">
+    <div class="centerHolder">
+        <div class="centercontent">
+            <div class="container">
+                <div class="payHolder">
+                    <div class="amountsSpecification">
+                        <table cellpadding="5" width="90%">
+                            <tr>
+                                <td align="left">Total Amount</td><td><span id="totalAmountDisplay"></span></td>
+                            </tr>
+                            <tr>
+                                <td width="100%"><select class="form-control" id="modeofpayment">
+                                    <option value="Cash">Cash</option>
+                                    <option value="Card">Card</option>
+                                    <option value="Cheque">Cheque</option>
+                                    <option value="UPI">UPI</option>
+                                    <option value="Account">Account</option>
+                                </select></td>
+                            </tr>
+                            <tr>
+                                <td align="left" colspan="2"><label>Remaining Amount : </label><span id="givenAmount"></span><input type="hidden" name="givenAmountVal" id="givenAmountVal" /></th>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <div class="table-responsive" id="paymentTypes">
+                                        <table class="table table-striped">
+                                            <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Mode Of Payment</th>
+                                                <th>Amount Paid</th>
+
+                                            </tr>
+                                            </thead>
+                                            <tbody id="modesOfPaymentTableBody">
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="deliveryDateAndRefNum">
+                        <div class="form-group">
+                            <label>Order Delivery Date &amp; Time</label>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div style="width:80%;float: left;">
+                                        20-08-2019 12:55 PM
+                                    </div>
+                                    <div style="width:20%;float: left;">
+                                        <button onclick="javascript:{AndroidInterface.selectDateTime();}" class="btn btn-circle btn-small"><i class="fa fa-calendar"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="easy-numpad-container">
+                                <div class="easy-numpad-output-container">
+                                    <p class="easy-numpad-output" id="easy-numpad-output-2"></p>
+                                </div>
+                                <div class="easy-numpad-number-container">
+                                    <table>
+                                        <tbody><tr>
+                                            <td><a href="7" onclick="javascript:{easynum2();}">7</a></td>
+                                            <td><a href="8" onclick="javascript:{easynum2();}">8</a></td>
+                                            <td><a href="9" onclick="javascript:{easynum2();}">9</a></td>
+                                            <td><a href="Del" class="del" id="dele" onclick="javascript:{easy_numpad_del2();}">Del</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td><a href="4" onclick="javascript:{easynum2();}">4</a></td>
+                                            <td><a href="5" onclick="javascript:{easynum2();}">5</a></td>
+                                            <td><a href="6" onclick="javascript:{easynum2();}">6</a></td>
+                                            <td><a href="Clear" class="clear" id="clear2" onclick="javascript:{easy_numpad_clear2();}">Clear</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td><a href="1" onclick="javascript:{easynum2();}">1</a></td>
+                                            <td><a href="2" onclick="javascript:{easynum2();}">2</a></td>
+                                            <td><a href="3" onclick="javascript:{easynum2();}">3</a></td>
+                                            <td><a href="Cancel" class="cancel" id="cancel2" onclick="javascript:{easy_numpad_cancel2();}">Cancel</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2" onclick="javascript:{easynum2();}"><a href="0">0</a></td>
+                                            <td onclick="javascript:{easynum2();}"><a href=".">.</a></td>
+                                            <td><a href="#" class="done" id="done2" onclick="javascript:{easy_numpad_done2();}">Done</a></td>
+                                        </tr>
+                                        </tbody></table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cancelPaymentConfirmPaymentOrderRef">
+                        <div class="form-group">
+                            <br />
+                            <p style="text-align: right;"><button id="cancelPaymentButton" class="btn btn-danger btn-block">Cancel</button></p>
+                        </div>
+                        <div class="form-group">
+                            <label>Order Ref No.</label><br />
+                            <input class="form-control" type="text" name="orderRefNo" id="orderRefNo" />
+
+                        </div>
+                        <div class="form-group">
+                            <label>Payment Ref No.</label><br />
+                            <input class="form-control" type="text" name="paymentRefNo" id="paymentRefNo" />
+                        </div>
+                        <div class="form-group">
+                            <p style="text-align: right;"><button id="confirmPaymentBtn" class="btn btn-success btn-block">Pay</button></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="popup" id="selectStorePopup">
+    <div class="row"><h3 style="width: 100%; text-align: center; font-size: 20px; font-family: sans-serif;">Select The Store</h3></div>
+    <div class="row">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <tbody id="selectStoreTableBody">
+                <tr>
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="popup" id="tableSelectionPopup">
+
+    <div class="row">
+        <div class="col-10">Select Table</div>
+        <div class="col-2" style="text-align: center;">
+            <button class="btn btn-circle btn-small" onclick="javascript:closeSaveNewInvoicePopup();"><i class="fa fa-times"></i></button>
+
+        </div>
+    </div>
+    <div class="row" id="tableNumberSelectionForPopup">
+
+    </div>
+</div>
+
+<div class="popup" id="saveInvoiceTableSelectionPopup">
+
+    <div class="row">
+        <div class="col-2 offset-10" style="text-align: center; margin-bottom: 20px;">
+            <button class="btn btn-circle btn-small" onclick="javascript:closeSaveNewInvoicePopup();"><i class="fa fa-times"></i></button>
+
+        </div>
+    </div>
+    <div class="row">
+
+        <div class="col-6" id="orderRefHeading"><h5 style="text-align: center; line-height: 40px;">Order Reference Number&nbsp;&nbsp;&nbsp;</h5></div><div class="col-4"><input type="text" name="orderRefNum" class="form-control" id="orderRefNum" value=""><input type="hidden" name="tableSelected" id="tableSelected" value=""></div>
+        <div class="col-2"><button id="confirmOrderRefId" class="btn btn-primary btn-block"><i class="fa fa-check"></i></button></div>
+    </div>
+    <div class="row">
+        <div class="col-12" id="orderTableSelection">
+
+        </div>
+    </div>
+
+</div>
+<div class="popup3" id="confirmationPopup">
+
+    <div class="centerHolder">
+        <div class="centercontent">
+            <div class="row">
+                <br /><br />
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <h3 style="text-align: center;" id="confirmationHeading">Are you sure that you want to void the invoice</h3>
+                    <input type="hidden" name="confirmationType" id="confirmationType" value="voidTheInvoice" />
+                </div>
+            </div>
+            <div class="row" id="notesTextareaDiv">
+                <div class="col-8 offset-2">
+                    <textarea class="form-control" id="notesTextarea"></textarea>
+                </div>
+
+            </div>
+            <div  class="row" style="width:100%">
+                <div class="col-10 offset-1">
+                    <div id="notesButtonsDiv" class="row">
+
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <br /><br />
+            </div>
+            <div class="row">
+                <div class="col-6" style="text-align: center;">
+                    <button id="cancelAlertBtn" type="button"  onclick="javascript:cancelAlert();" class="btn btn-danger btn-lg"><i class="fa fa-times"></i>&nbsp;Cancel</button>
+                </div>
+                <div class="col-6" style="text-align: center;">
+                    <button type="button" onclick="javascript:confirmAlert();" class="btn btn-success btn-lg"><i class="fa fa-check"></i>&nbsp;Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="popup3" id="advancedSettingsPopup">
+    <div class="row">
+
+
+        <div class="offset-8 col-4" style="text-align: right;"><button id="closeAdvancedSetting" class="btn btn-default btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+    </div>
+    <div class="row" style="margin-top: 15px;">
+        <div class="panel panel-default">
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <div class="col-xs-12 ">
+                    <nav>
+                        <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
+                            <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Shift Tables</a>
+                            <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Customer Account Payments</a>
+                            <!-- <a class="nav-item nav-link" id="nav-contact-tab" data-toggle="tab" href="#nav-contact" role="tab" aria-controls="nav-contact" aria-selected="false">Contact</a>
+                            <a class="nav-item nav-link" id="nav-about-tab" data-toggle="tab" href="#nav-about" role="tab" aria-controls="nav-about" aria-selected="false">About</a> -->
+                        </div>
+                    </nav>
+                    <div class="tab-content py-3 px-3 px-sm-0" id="nav-tabContent">
+                        <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+                            <div class="row" style="margin-left: 0px; margin-right: 0px; width: 100%; ">
+                                <div class="col-lg-4">
+                                    <div class="form-group">
+                                        <label for="toTable">From</label>
+                                        <select class="form-control" id="fromTable">
+                                            <option value="">Select The Table to be shifted</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="form-group">
+                                        <label for="toTable">To</label>
+                                        <select class="form-control" id="toTable">
+                                            <option value="">Select The New Table</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="form-group">
+                                        <label for="newRefNumForOrder">New Reference #</label>
+                                        <input class="form-control" id="newRefNumForOrder" name="newRefNumForOrder" value="" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 offset-lg-8">
+                                    <br />
+                                    <button id="shiftTheTable" class="btn btn-success btn-block">Shift</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                            <div class="row" style="margin-left: 0px; margin-right: 0px; width: 100%; min-width: 1000px; ">
+                                <div class="col-lg-3">
+                                    <div class="form-group">
+                                        <label for="oldBalance">Old Balance</label>
+                                        <span id="oldBalance"></span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <div class="form-group">
+                                        <label for="balanceBeingPaid">Amount Being Paid</label>
+                                        <input type="number" id="balanceBeingPaid" name="balanceBeingPaid" value="" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <div class="form-group">
+                                        <label for="customerPaymentMode">Mode Of Payment</label>
+                                        <select class="form-control" id="customerPaymentMode" name="customerPaymentMode">
+                                            <option value="Cash">Cash</option>
+                                            <option value="Card">Card</option>
+                                            <option value="UPI">UPI</option>
+                                            <option value="Cheque">Cheque</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <br />
+                                    <button id="updateBalance" onclick="javascript:updateBalance();" class="btn btn-success btn-block">Update Balance</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!--
+                        <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+                          Et et consectetur ipsum labore excepteur est proident excepteur ad velit occaecat qui minim occaecat veniam. Fugiat veniam incididunt anim aliqua enim pariatur veniam sunt est aute sit dolor anim. Velit non irure adipisicing aliqua ullamco irure incididunt irure non esse consectetur nostrud minim non minim occaecat. Amet duis do nisi duis veniam non est eiusmod tempor incididunt tempor dolor ipsum in qui sit. Exercitation mollit sit culpa nisi culpa non adipisicing reprehenderit do dolore. Duis reprehenderit occaecat anim ullamco ad duis occaecat ex.
+                        </div>
+                        <div class="tab-pane fade" id="nav-about" role="tabpanel" aria-labelledby="nav-about-tab">
+                          Et et consectetur ipsum labore excepteur est proident excepteur ad velit occaecat qui minim occaecat veniam. Fugiat veniam incididunt anim aliqua enim pariatur veniam sunt est aute sit dolor anim. Velit non irure adipisicing aliqua ullamco irure incididunt irure non esse consectetur nostrud minim non minim occaecat. Amet duis do nisi duis veniam non est eiusmod tempor incididunt tempor dolor ipsum in qui sit. Exercitation mollit sit culpa nisi culpa non adipisicing reprehenderit do dolore. Duis reprehenderit occaecat anim ullamco ad duis occaecat ex.
+                        </div> -->
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <!-- Tab panes -->
+
+    </div>
+</div>
+
+
+<div class="popup3" id="customerSearchPopup">
+    <div class="recallContainer">
+        <div class="recallHeading">
+            <div class="row">
+                <div class="col-4">&nbsp;<span id="customerSearchSpan">Customer Search</span></div>
+                <div class="col-4" id="customerSearchTextfield"><input type="text" class="form-control" id="customerSearchField" name="customerSearchField" value="" placeholder="Name/Phone Number/ID"></div>
+                <div class="col-2"><button id="addCustomerButton" class="btn btn-primary btn-block"><i class="fa fa-plus"></i></button>&nbsp;&nbsp;</div>
+                <div class="col-2"><button id="closeCustomerSearch" class="btn btn-default btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+            </div>
+        </div>
+        <div class="recallBody">
+            <div class="table-responsive">
+                <table class="table">
+                    <tbody id="customerSearchBody">
+
+                    </tbody>
+                    <tbody id="addCustomerBody">
+                    <tr>
+                        <td>
+                            <form id="addCustomerForm" method="post" action="" onsubmit="return false;">
+                                <div class="row">
+                                    <div class="col-lg-3 col-sm-4 col-xs-6">
+                                        <div class="form-group">
+                                            <label for="addcustomerid">Customer ID</label><br />
+                                            <input type="text" class="form-control" name="addcustomerid" id="addcustomerid" /><br /><p class="help-block">Leave blank for auto generated customer id.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-sm-4 col-xs-6">
+                                        <div class="form-group">
+                                            <label for="addcustomerfirstname">First Name</label><br />
+                                            <input type="text" class="form-control" name="addcustomerfirstname" id="addcustomerfirstname" />
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-sm-4 col-xs-6">
+                                        <div class="form-group">
+                                            <label for="addcustomerlastname">Last Name</label><br />
+                                            <input type="text" class="form-control" name="addcustomerlastname" id="addcustomerlastname" />
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-sm-4 col-xs-6">
+                                        <div class="form-group">
+                                            <label for="addcustomerphone">Phone Number</label><br />
+                                            <input type="text" class="form-control" name="addcustomerphone" id="addcustomerphone" />
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-sm-4 col-xs-6">
+                                        <div class="form-group">
+                                            <label for="addcustomeremail">Email Address</label><br />
+                                            <input type="text" class="form-control" name="addcustomeremail" id="addcustomeremail" />
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-sm-4 col-xs-6">
+                                        <div class="form-group">
+                                            <label for="addcustomeraddressline1">Address Line 1</label><br />
+                                            <input type="text" class="form-control" name="addcustomeraddressline1" id="addcustomeraddressline1" />
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-sm-4 col-xs-6">
+                                        <div class="form-group">
+                                            <label for="addcustomeraddressline2">Address Line 2</label><br />
+                                            <input type="text" class="form-control" name="addcustomeraddressline2" id="addcustomeraddressline2" />
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-sm-4 col-xs-6">
+                                        <div class="form-group">
+                                            <label for="addcustomeraddresscity">City</label><br />
+                                            <input type="text" class="form-control" name="addcustomeraddresscity" id="addcustomeraddresscity" />
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-lg-3 col-sm-4 col-xs-6">
+                                        <div class="form-group">
+                                            <label for="addcustomeraddressstate">State</label><br />
+                                            <input type="text" class="form-control" name="addcustomeraddressstate" id="addcustomeraddressstate" placeholder="Only For Interstate Taxation" />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-3 col-sm-4 col-xs-6">
+                                        <div class="form-group">
+                                            <label for="addcustomeraddresszipcode">Pin Code</label><br />
+                                            <input type="text" class="form-control" name="addcustomeraddresszipcode" id="addcustomeraddresszipcode" />
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-sm-4 col-xs-6">
+                                        <div class="form-group">
+                                            <label for="addcustomertaxid">GSTIN</label><br />
+                                            <input type="text" class="form-control" name="addcustomertaxid" id="addcustomertaxid" />
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-sm-4 col-xs-6">
+                                        <div class="form-group">
+                                            <label for="addcustomercompanyname">Company Name</label><br />
+                                            <input type="text" class="form-control" name="addcustomercompanyname" id="addcustomercompanyname" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+
+                                    <div class="col-lg-4 offset-lg-4 col-md-6 offset-md-3 col-xs-10 offset-xs-1">
+                                        <button class="btn btn-block btn-lg btn-success" id="saveNewCustomer" type="button">Save</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="popup3" id="popup3">
+    <div class="recallContainer">
+        <div class="recallHeading">
+            <div class="row">
+                <div class="col-4">&nbsp;<span id="itemSearchSpan">Search for Item/Product</span></div>
+                <div class="col-4" id="recallHeadingText">Recall Invoice</div>
+                <div class="col-4" id="itemSearchTextfield"><input type="text" class="form-control" id="itemSearchField" name="itemSearchField" value=""></div>
+                <div class="col-4"><button id="closeRecall" class="btn btn-default btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+            </div>
+        </div>
+        <div class="recallBody">
+            <div class="table-responsive">
+                <table class="table">
+                    <tbody id="recalledInvoicesBody">
+
+                    </tbody>
+                    <tbody id="holdInvoicesBody"></tbody>
+                    <tbody id="itemSearchBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="popup2">
+    <div class="row">
+        <div class="col-lg-12">
+            <h3 id="numpadPopupHeading">Enter The Quantity</h3>
+            <input type="hidden" name="numbermodificationtype" id="numbermodificationtype" value="changequantity" />
+            <input type="hidden" name="adjustquantitytorate" id="adjustquantitytorate" value="false" />
+        </div>
+        <div id="discountTypeSelection" class="col-lg-12 col-xs-12">
+            <div class="row" style="text-align: center;">
+                <div class="col-6" style="text-align: right;">
+
+                    <label>
+                        <input type="checkbox" name="overallDiscountSwitch" id="overallDiscountSwitch" value="overallDisc">&nbsp;&nbsp;Overall Discount&nbsp;&nbsp;&nbsp;
+                        <input style="visibility: hidden;" type="checkbox" name="overallDiscount" id="overallDiscount" >
+
+                    </label>
+                    <script type="text/javascript">
+
+                    </script>
+                </div>
+                <div class="col-6" style="text-align: left;">
+                    <input id="discountTypeSwitch" type="checkbox"  data-off-color="warning"  data-on-color="info" data-on-text="%" data-off-text="&#8377;">
+                    <div style="display : none;">
+                        <label class="radio-inline">
+                            <input type="radio" name="discountType" class="form-check-input" id="discountTypeCurrency" value="currency" >&nbsp;&nbsp;<span class="currencyHolder">&#8377;</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="discountType" class="form-check-input"  id="discountTypePercentage" value="percentage" checked="">&nbsp;&nbsp;%
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="quantityAlterationType" class="col-lg-12 col-xs-12">
+            <div class="col-lg-12" style="text-align: center;">
+                <div class="form-group">
+                    <label class="radio-inline">
+                        <input type="checkbox" name="adjustQuantityToRateCheck" id="adjustQuantityToRateCheck" value="true">&nbsp;&nbsp;Adjust Quantity To Price&nbsp;&nbsp;&nbsp;
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="easy-numpad-container">
+        <div class="easy-numpad-output-container">
+            <p class="easy-numpad-output" id="easy-numpad-output"></p>
+        </div>
+        <div class="easy-numpad-number-container">
+            <table>
+                <tbody><tr>
+                    <td><a href="7" onclick="javascript:{easynum();}">7</a></td>
+                    <td><a href="8" onclick="javascript:{easynum();}">8</a></td>
+                    <td><a href="9" onclick="javascript:{easynum();}">9</a></td>
+                    <td><a href="Del" class="del" id="del" onclick="javascript:{easy_numpad_del();}">Del</a></td>
+                </tr>
+                <tr>
+                    <td><a href="4" onclick="javascript:{easynum();}">4</a></td>
+                    <td><a href="5" onclick="javascript:{easynum();}">5</a></td>
+                    <td><a href="6" onclick="javascript:{easynum();}">6</a></td>
+                    <td><a href="Clear" class="clear" id="clear" onclick="javascript:{easy_numpad_clear();}">Clear</a></td>
+                </tr>
+                <tr>
+                    <td><a href="1" onclick="javascript:{easynum();}">1</a></td>
+                    <td><a href="2" onclick="javascript:{easynum();}">2</a></td>
+                    <td><a href="3" onclick="javascript:{easynum();}">3</a></td>
+                    <td><a href="Cancel" class="cancel" id="cancel" onclick="javascript:{easy_numpad_cancel();}">Cancel</a></td>
+                </tr>
+                <tr>
+                    <td colspan="2" onclick="javascript:{easynum();}"><a href="0">0</a></td>
+                    <td onclick="javascript:{easynum();}"><a href=".">.</a></td>
+                    <td><a href="#" class="done" id="done" onclick="javascript:{numpadDoneClicked();}">Done</a></td>
+                </tr>
+                </tbody></table>
+        </div>
+    </div>
+
+</div>
+<div class="overlay"></div>
+<div class="overlay2"></div>
+<div class="confirmationOverlay"></div>
+
+<div id="showLoadingModal" class="modal hide" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Please wait...</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p style="text-align:center;"><img style="" src="img/loading.gif" /></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="cancellationReasonModal" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-xl  full_modal-dialog">
+        <div class="modal-content full_modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reason For Cancellation</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive" id="itemwise_cancellation">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr><th>#</th><th>Item Name</th><th>Item Quantity (Cancelled)</th><th>Reason For Cancellation</th></tr>
+
+                        </thead>
+                        <tbody id="ReasonForCancellationModalBody">
+
+                        </tbody>
+
+                    </table>
+                </div>
+                <div class="table-responsive" id="voidinvoice_reasonfor_cancellation">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr><th>Void Invoice Reason</th><th><input type="text" class="form-control" id="voidInvoiceReasonForCancellation" name="voidInvoiceReasonForCancellation" /></th></tr>
+
+                        </thead>
+                    </table>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-lg btn-info" onclick="javascript:cancellationReasonProceedButton();">Proceed</button>&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-lg btn-secondary" onclick="javascript:resetTheReasonsForCancellation();" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

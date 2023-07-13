@@ -1,0 +1,17 @@
+
+body {
+
+}
+.main {
+    height: 100%;
+    width: 100%;
+    display: table;
+    position : absolute;
+}
+.wrapper {
+    display: table-cell;
+    height: 100%;
+    vertical-align: middle;
+}
+
+.wrapper > .container > .row { margin-bottom : 25px;}

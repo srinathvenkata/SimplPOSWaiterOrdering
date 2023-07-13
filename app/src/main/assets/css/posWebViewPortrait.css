@@ -1,0 +1,86 @@
+#itemSelectionAndPreviewReceipt{
+    display : none;
+    background-color : #CBCBCB;
+}
+.popup3#itemSelectionAndPreviewReceipt{
+    padding : 10px 10px;
+    z-index : 9997;
+    border : 3px solid #150E28
+}
+body.portrait #popup3.popup3{
+    padding : 10px 10px;
+    z-index : 9997;
+    border : 3px solid #150E28
+}
+
+  .portrait #myContainer #leftHalf,.portrait #myContainer #rightHalf{
+      width:100%;
+      float:left;
+    }
+
+#tableSelectionPopup { overflow-x : scroll; }
+
+#selectItemsButton { margin-bottom : 25px;
+    color: #FFFFFF;
+    background-color : #000000;
+      -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
+}
+
+  body.portrait #rightHalf{
+    top : 0px;
+  }
+
+@media only screen and (max-width: 720px) {
+  body.portrait .headingSet{
+    height: 45px;
+  }
+  body.portrait #leftHalf{
+    top : 45px;
+  }
+  #barcodeScanningSection{
+    height : 45px;
+  }
+
+  body.portrait #itemsWithSelection .productImageAndName .productName{
+    font-size: 11px;
+  }
+}
+
+body.portrait #paymentCustomerButtonsSection #paymentTypesAndOrderTypes #holderTable { display : none; }
+
+body.portrait #itemsWithSelection .productImageAndName .productName.productNameSelected{
+    background-color : #E3E3E3;
+}
+
+#closeItemsSelection{
+    position : absolute; right : 0px; bottom : 0px;
+}
+
+.storeAndUser{
+    position: absolute;
+    bottom: 0px;
+    height: 25px;
+    line-height: 25px;
+    font-size: 12px;
+    font-family: sans-serif;
+    width : 100%;
+
+}
+.storeAndUser > div {
+    color : #818181;
+}
+
+body.portrait #itemSearchSpan { float:none; }
+body.portrait #itemSearchTextfield{ z-index : 9995; }
+
+body.portrait #itemsWithSelection .productImageAndName .notifyjs-wrapper {
+    z-index : 11000;
+}
+
+body.portrait .paypopup .payHolder .deliveryDateAndRefNum{ width: 100%; max-width: 100%; overflow-x:hidden; float: left; }
+body.portrait .paypopup .payHolder .amountsSpecification{ width: 100%; max-width: 100%; overflow-x:hidden; float: left; }
+.paypopup .payHolder .cancelPaymentConfirmPaymentOrderRef{
+  width: calc(100% - 5px); max-width: calc(100% - 10px); overflow-x:hidden; float: left; margin-left: 10px;
+}

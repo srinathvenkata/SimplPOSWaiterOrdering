@@ -1,0 +1,71 @@
+@CHARSET "ISO-8859-1";
+
+
+.btn-circle {
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  padding: 6px 0;
+  font-size: 12px;
+  line-height: 1.428571429;
+  border-radius: 15px;
+}
+.btn-circle.btn-lg {
+  width: 50px;
+  height: 50px;
+  padding: 10px 16px;
+  font-size: 18px;
+  line-height: 1.33;
+  border-radius: 25px;
+}
+.btn-circle.btn-xl {
+  width: 70px;
+  height: 70px;
+  padding: 10px 16px;
+  font-size: 24px;
+  line-height: 1.33;
+  border-radius: 35px;
+}
+@media only screen and (max-width: 1000px) {
+div.fullwidthscroll
+{max-width:100%; overflow-x:auto;}
+
+}
+.col-sm-12 h2{ text-align:center;}
+*[role="form"] {
+    max-width: 530px;
+    padding: 15px;
+    margin: 0 auto;
+    background-color: #fff;
+    border-radius: 0.3em;
+}
+
+*[role="form"] h2 {
+    margin-left: 5em;
+    margin-bottom: 1em;
+}
+.colorbox{
+	float:left; 
+	width:20px;
+	height:20px;
+	    box-shadow: 2px 2px 3px rgba(136,136,136,0.6);
+	
+}
+
+
+	.fullwidth{ float:left; width:100%;}
+	.fullwidth > input[type="text"]{ width:100%; float: left;}
+	.autocompletewrapper{ position: relative;}
+	.searchresults{ height:0px; z-index: 5; }
+	.searchresults ul.searchresultsresponse{width:100%; display:none; position: absolute; z-index: 5; float:left; height:auto; background-color:#FFFFFF; padding:0px; margin:0px; border:1px solid #DFDFDF; border-top:0px solid #DFDFDF; -moz-border-radius-bottomright: 5px;
+-webkit-border-bottom-right-radius: 5px;
+border-bottom-right-radius: 5px;
+-moz-border-radius-bottomleft: 5px;
+-webkit-border-bottom-left-radius: 5px;
+border-bottom-left-radius: 5px; }
+	.searchresults ul.searchresultsresponse li{ list-style-type:none; padding:3px 6px; font-family: 'Source Sans Pro','Helvetica Neue',Helvetica,Arial,sans-serif;color:#302C2F;cursor:pointer;}
+	.searchresults ul.searchresultsresponse li:hover{ color:#FFFFFF; background-color:#0097cf; }	
+	.searchresults ul.searchresultsresponse li.highlight,.searchresults ul.searchresultsresponse li.highlight:hover{  color:#FFFFFF;cursor: pointer; background-color:#6BB9D6; }
+	div.autocompleteoverlay{ display:none; position: fixed; top: 0px; left: 0px; bottom: 0px; right: 0px; width: 100%; z-index:4;}
+	div.projectautocompleteoverlay{ display:none; position: fixed; top: 0px; left: 0px; bottom: 0px; right: 0px; width: 100%; z-index:4;}
+	

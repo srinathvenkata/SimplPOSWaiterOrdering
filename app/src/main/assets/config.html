@@ -1,0 +1,40 @@
+<html>
+<head>
+<title>Barcode Printing Page</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1"><!-- file:///android_asset/ -->
+        <script src="file:///android_asset/jquery.js" ></script>
+        <!-- <script src="jquery.js" ></script> -->
+        <link rel="stylesheet" href="file:///android_asset/bootstrap/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="file:///android_asset/bootstrap/css/bootstrap-grid.css" />
+        <link rel="stylesheet" href="file:///android_asset/fontawesome/css/fontawesome.css" />
+        <script src="file:///android_asset/bootstrap/js/bootstrap.js"></script>
+        <script src="file:///android_asset/bootstrap/bootbox/bootbox.js"></script>
+        <script src="file:///android_asset/fontawesome/js/fontawesome.js"></script>
+  <!-- Ionicons -->
+<style type="text/css">
+     body { max-width : 100% !important; overflow-x  : hidden; background-image: linear-gradient(#FFFFFF, #efccc9); }
+</style>
+    <link rel="stylesheet" href="file:///android_asset/css/splashscreen.css" />
+
+</head>
+<body>
+  <div class="main" id="allConfigDetails">
+    <div class="wrapper">
+        <p style="width:100% ; text-align:center;"> <img style="max-width:80%;" src="file:///android_asset/images/simplPOSLogo.png" /></p>
+        <p style="width:100% ; margin-top:25px; text-align:center;"> <img src="file:///android_asset/images/loading.gif" /></p>
+    </div>
+  </div>
+</body>
+<script type="text/javascript">
+
+    window.setTimeout(function(){
+        try{
+        AndroidInterface.goToMainScreen();
+        }catch(Err){
+            console.log(Err.stack);
+            console.log(Err.message);
+        }
+    },3000);
+</script>
+</html>

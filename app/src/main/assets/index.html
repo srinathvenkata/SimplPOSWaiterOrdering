@@ -1,0 +1,161 @@
+<html>
+<head>
+<title>Barcode Printing Page</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1"><!-- file:///android_asset/ -->
+        <script src="file:///android_asset/jquery.js" ></script>
+        <!-- <script src="jquery.js" ></script> -->
+        <link rel="stylesheet" href="file:///android_asset/bootstrap/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="file:///android_asset/bootstrap/css/bootstrap-grid.css" />
+        <link rel="stylesheet" href="file:///android_asset/fontawesome/css/fontawesome.css" />
+        <script src="file:///android_asset/bootstrap/js/bootstrap.js"></script>
+        <script src="file:///android_asset/bootstrap/bootbox/bootbox.js"></script>
+        <script src="file:///android_asset/fontawesome/js/fontawesome.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- Ionicons -->
+  
+        <style type="text/css">
+ 	body.modal-open .modal {
+    display: flex !important;
+    height: 100%;
+}
+body.modal-open .modal .modal-dialog {
+    margin: auto;
+    min-width: 200px;
+}
+
+#preprintvalues{
+	display: none;
+}
+*{ margin:0px;padding: 0px; }
+html, body {
+  height:100%;
+  max-width: 100%;
+}
+.main {
+    height: 100%;
+    width: 100%;
+    display: table;
+}
+.wrapper {
+    display: table-cell;
+    height: 100%;
+    vertical-align: middle;
+}
+a.btn{ padding-left:0px; }
+        </style>
+</head>
+<body>
+  <center>
+  <div class="container">
+  <div class="main">
+	<div class="wrapper">
+
+        <div class="col-lg-8 offset-lg-2 col-xs-8 offset-xs-2" style="">
+              <div class="table-responsive"><a href="config.html" class="btn btn-secondary col-lg-8 offset-lg-2 col-sm-8 offset-sm-2 col-md-8 offset-md-2 col-xs-8 offset-xs-2"><i class="fa fa-cog fa-fw"></i>&nbsp;Configuration</a></div>
+              <div class="table-responsive"><br /></div>
+              <div class="table-responsive"><a id="gotoUrlAnchor" href="https://www.google.com" class="btn btn-success col-lg-8 offset-lg-2 col-sm-8 offset-sm-2 col-md-8 offset-md-2 col-xs-8 offset-xs-2"><i class="fa fa-arrow-right fa-fw"></i>&nbsp;Go</a><br /></div>
+              <div class="table-responsive"><br /></div>
+            <div class="table-responsive"><button onclick="testprint();" class="btn btn-info col-lg-8 offset-lg-2 col-sm-8 offset-sm-2 col-md-8 offset-md-2 col-xs-8 offset-xs-2"><i class="fa fa-print" aria-hidden="true"></i>&nbsp;Test Print</button></div>
+              <div class="table-responsive"><br /></div>
+                <!-- <div class="table-responsive"><button onclick="refreshPrinterConnection();" class="btn btn-primary col-lg-8 offset-lg-2 col-sm-8 offset-sm-2 col-md-8 offset-md-2 col-xs-8 offset-xs-2"><i class="fa fa-refresh" aria-hidden="true"></i>&nbsp;Refresh Printer Connection</a></div>
+                -->
+    
+
+		    </div>
+  </div>
+  </div>
+  </div>
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Calculated Price</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="priceOfBarcodes">
+      The total Calculate Price is..
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+</center>
+<script type="text/javascript">
+      function resetTheHeight()
+      {
+        bootbox.alert("resetTheHeight() called");
+
+      }
+	   try{
+     var bodyHeight = AndroidInterface.getHeightOfWebview();
+     var bodyWidth = AndroidInterface.getWidthOfWebview();
+     var newHeight = parseInt(bodyHeight) * parseInt((jQuery("body").width())) / parseInt(bodyWidth);
+    bodyHeightStr = (newHeight.toString())+"px";
+     
+     jQuery('body').css({height: bodyHeightStr});
+
+    // AndroidInterface.showToast((jQuery("body").width())+" is the width and new height is "+newHeight);
+      }
+      catch(Err)
+      {
+        bootbox.alert(Err.message);
+      }
+		jQuery(document).ready(function(){
+
+        var printableContent = "Hello Printing called";
+      var urlValue=AndroidInterface.urlValueRetrieve();
+        if(urlValue!="")
+        {
+          jQuery("#gotoUrlAnchor"). attr("href", "http://"+urlValue);
+        }
+
+			jQuery("a[href='#top']").click(function() {
+	  				jQuery("html, body").animate({ scrollTop: 0 }, "slow");
+	  				return false;
+			});
+
+
+      setTimeout(function(){ 
+        jQuery("#gotoUrlAnchor")[0].click();
+      }, 5000);
+
+// 			bootbox.alert("Hello");
+		})
+    function testprint()
+    {
+      try{
+        var jsonobjForPrint = { 
+                heading        : ("Heading"), 
+                secondLine     : "Order ID 1 2 3 4 5",
+                itemsContent                : "2 Mexican special Pizza ",
+                footerContent            : "*****"
+                    };
+        var printContent = JSON.stringify(jsonobjForPrint);                    
+        AndroidInterface.printMyContentEpson(printContent);
+      }
+      catch(Err)
+      {
+        bootbox.alert(Err.message);
+      }
+
+    }
+    function refreshPrinterConnection()
+    {
+      try{
+        AndroidInterface.refreshPrinterConnection();
+      }
+      catch(Err)
+      {
+        bootbox.alert(Err.message);
+      }
+
+    }
+</script>
+</body>
+</html>

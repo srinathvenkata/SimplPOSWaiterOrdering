@@ -1,0 +1,92 @@
+<html>
+<head>
+<title>No Internet</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1"><!-- file:///android_asset/ -->
+        <script src="file:///android_asset/jquery.js" ></script>
+        <!-- <script src="jquery.js" ></script> -->
+        <link rel="stylesheet" href="file:///android_asset/bootstrap/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="file:///android_asset/bootstrap/css/bootstrap-grid.css" />
+        <link rel="stylesheet" href="file:///android_asset/fontawesome/css/fontawesome.css" />
+        <script src="file:///android_asset/bootstrap/js/bootstrap.js"></script>
+        <script src="file:///android_asset/bootstrap/bootbox/bootbox.js"></script>
+        <script src="file:///android_asset/fontawesome/js/fontawesome.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- Ionicons -->
+  
+        <style type="text/css">
+    body.modal-open .modal {
+    display: flex !important;
+    height: 100%;
+}
+body.modal-open .modal .modal-dialog {
+    margin: auto;
+    min-width: 200px;
+}
+
+#preprintvalues{
+    display: none;
+}
+*{ margin:0px;padding: 0px; }
+html, body {
+  height:100%;
+  max-width: 100%;
+}
+.container{ padding-top:70px; }
+.main {
+    height: 100%;
+    width: 100%;
+    display: table;
+}
+.wrapper {
+    display: table-cell;
+    height: 100%;
+    vertical-align: middle;
+}
+#goBackView{ position: absolute;top:15px;left: 15px; }
+a.btn{ padding-left:0px; }
+.form-group > .radio > input{ margin-bottom: 10px; margin-right: 5px; }
+        </style>
+</head>
+<body>
+  <center>
+<div class="row">
+  <div class="container" id="allConfigDetails">
+  
+        <div class="col-lg-6 col-xs-12 col-md-9 col-sm-12" style="">
+              <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 align="center"><i class="fa fa-times"></i> Please check the Connectivity</h3>
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <td>Either there is no internet or the web page address is invalid.</td>
+                                        </tr>
+                                        <tr>
+
+                                            <td><button class="btn btn-circle btn-info" onclick="javascript:{AndroidInterface.tryAgainForCaptainOrdering();}"><i class="fa fa-refresh fa-fw"></i> Retry</button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+  </div>
+</div>
+  <div id="goBackView">
+        <button class="btn btn-circle btn-primary" onclick="javascript:{AndroidInterface.goBackToMain();}"><i class="fa fa-backward fa-fw"></i></button>
+  </div>
+
+<!-- Modal -->
+
+</center>
+<script type="text/javascript">
+
+</script>
+</body>
+</html>

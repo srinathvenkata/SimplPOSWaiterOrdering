@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "356376405789",
+    "project_id": "simplposordering",
+    "storage_bucket": "simplposordering.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:356376405789:android:69c93a1f3e34937e6e23f4",
+        "android_client_info": {
+          "package_name": "com.simplpos.waiterordering"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "356376405789-rou1h0009aggiaku6b6dnho2gn8cmnu0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDk8vD-4J9V8WnjFGeFnil9UbB94Z-SnB8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "356376405789-rou1h0009aggiaku6b6dnho2gn8cmnu0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
