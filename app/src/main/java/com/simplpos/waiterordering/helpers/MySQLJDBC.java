@@ -435,7 +435,7 @@ public class MySQLJDBC {
             }
 
             while (resultset.next()) {
-                System.out.println(resultset.getString("Database"));
+                System.out.println("Within Check Connectivity " + resultset.getString("Database"));
             }
 
             c.setAutoCommit(false);

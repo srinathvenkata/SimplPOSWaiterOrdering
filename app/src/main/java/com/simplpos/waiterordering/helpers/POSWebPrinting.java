@@ -1440,8 +1440,12 @@ public class POSWebPrinting {
             String inclusiveTaxesContent = "";
             inclusiveTaxesContent = prepareInclusiveTaxsHTML();
 
+            String cardTransactionDetails = "";
+            CardPaymentProcessingMaster cppm = new CardPaymentProcessingMaster();
+            cardTransactionDetails = cppm.allCardTransactionDetailsForInvoice(printInvoiceId); // printInvoiceId
+
             String vouchersAppliedOnInvoice = "";//returnVouchersAppliedOnInvoicePrintString(printInvoiceId);
-            billContent = billContent + itemsListStr + totalCalculationStr + inclusiveTaxesContent + vouchersAppliedOnInvoice;
+            billContent = billContent + itemsListStr + totalCalculationStr + cardTransactionDetails + inclusiveTaxesContent + vouchersAppliedOnInvoice;
 
             if (totalDiscountGivenOnSubtotal != 0) {
                 billContent += "<tr class=\"totalDiscountAvailedRow\"><td colspan=\"3\" align=\"center\"><b>Total Discount Availed On Sub Total</td><td align=\"right\"><b>" + (df.format(totalDiscountGivenOnSubtotal)) + "&nbsp;" + currencyHtmlStr + "</b></td></tr>";

@@ -1,23 +1,17 @@
 package com.simplpos.waiterordering;
 
-import static com.simplpos.waiterordering.SplashScreen.dbHelper;
-
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.LocationManager;
 import android.net.http.SslError;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
-
-import com.google.android.material.snackbar.Snackbar;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -31,12 +25,11 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
 
+import com.simplpos.waiterordering.helpers.CardPaymentProcessingMaster;
 import com.simplpos.waiterordering.helpers.ConstantsAndUtilities;
 import com.simplpos.waiterordering.helpers.DatabaseHelper;
 import com.simplpos.waiterordering.helpers.DatabaseVariables;
@@ -44,7 +37,6 @@ import com.simplpos.waiterordering.helpers.DialogBox;
 import com.simplpos.waiterordering.helpers.MySQLJDBC;
 import com.simplpos.waiterordering.helpers.ServerSync;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -81,6 +73,7 @@ public class MenuScreen extends FragmentActivity implements Runnable{
 
         initiateConnections();
         initControls();
+        askCameraPermission();
     }
 
     private void copyPreferencesFromServer() {
@@ -386,7 +379,10 @@ public class MenuScreen extends FragmentActivity implements Runnable{
             @JavascriptInterface
             public void goToHardware()
             {
-
+                /*CardPaymentProcessingMaster cpm = new CardPaymentProcessingMaster();
+                String detailsOfCardTransaction = cpm.allCardTransactionDetailsForInvoice("BTR0000011");
+                Log.v("details",detailsOfCardTransaction);
+                if(!detailsOfCardTransaction.equals("")){ return; }*/
                 String licenseKey = dbVar.getValueForAttribute(ConstantsAndUtilities.LICENSE_KEY);
                 if(licenseKey.equals(""))
                 {
@@ -646,4 +642,18 @@ public class MenuScreen extends FragmentActivity implements Runnable{
             return false;
         }
     }
+    private void askCameraPermission() {
+        if (ContextCompat.checkSelfPermission(getApplicationContext(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(MenuScreen.this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            } else {
+                ActivityCompat.requestPermissions(MenuScreen.this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        1);
+            }
+        }
     }
+}

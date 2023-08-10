@@ -54,4 +54,7 @@ dependencies {
 
     implementation platform('com.google.firebase:firebase-bom:31.1.1')
     implementation 'com.google.firebase:firebase-analytics'
+
+    implementation files('libs/PAX_POSLinkAndroid_20220818.jar')
+
 }

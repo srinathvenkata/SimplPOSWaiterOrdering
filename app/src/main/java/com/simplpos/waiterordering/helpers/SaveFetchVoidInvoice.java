@@ -945,6 +945,7 @@ public class SaveFetchVoidInvoice {
             // check for promotions and membership programs
 
             // send complete invoice through invoice info
+            markCreditCardTransactionsAsComplete(newInvoiceNumber);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -965,12 +966,15 @@ public class SaveFetchVoidInvoice {
             ArrayList<JSONObject> InvoiceItemDetails = dbVar.executeRawqueryJSON("SELECT * FROM "+ dbVar.INVOICE_ITEMS_TABLE + " WHERE invoice_id='" + newInvoiceNumber + "'");
             ArrayList<JSONObject> InvoiceTaxDetails = dbVar.executeRawqueryJSON("SELECT * FROM "+ dbVar.TAX_AMOUNT_TABLE + " WHERE invoice_id='" + newInvoiceNumber + "'");
             ArrayList<JSONObject> InvoiceCategoryTaxDetails = dbVar.executeRawqueryJSON("SELECT * FROM "+ dbVar.CATEGORY_TAX_AMOUNT_TABLE + " WHERE invoice_id='" + newInvoiceNumber + "'");
+            ArrayList<JSONObject> cardTransactionDetails = dbVar.executeRawqueryJSON("SELECT * FROM card_transactions_processing WHERE invoice_id='" + newInvoiceNumber + "' ");
+
             deleteOldPendingQueriesRelatedtoInvoice(newInvoiceNumber);
             subarr.put("completeinvoiceDetails",InvoiceDetails);
             subarr.put("invoiceitemstotal",InvoiceItemDetails);
             subarr.put("invoicetaxdetails",InvoiceTaxDetails);
             subarr.put("categorytaxes",InvoiceCategoryTaxDetails);
             subarr.put("splitpayments",splitInvoiceDetails);
+            subarr.put("card_transactions_details",cardTransactionDetails);
             dbVar.sendToServerServiceData(subarr);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -1136,6 +1140,7 @@ public class SaveFetchVoidInvoice {
 
                 // send complete invoice through invoice info
 
+                markCreditCardTransactionsAsComplete(InvoiceNumber);
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -1155,12 +1160,14 @@ public class SaveFetchVoidInvoice {
                     ArrayList<JSONObject> InvoiceItemDetails = dbVar.executeRawqueryJSON("SELECT * FROM " + dbVar.INVOICE_ITEMS_TABLE + " WHERE invoice_id='" + InvoiceNumber + "'");
                     ArrayList<JSONObject> InvoiceTaxDetails = dbVar.executeRawqueryJSON("SELECT * FROM " + dbVar.TAX_AMOUNT_TABLE + " WHERE invoice_id='" + InvoiceNumber + "'");
                     ArrayList<JSONObject> InvoiceCategoryTaxDetails = dbVar.executeRawqueryJSON("SELECT * FROM " + dbVar.CATEGORY_TAX_AMOUNT_TABLE + " WHERE invoice_id='" + InvoiceNumber + "'");
+                    ArrayList<JSONObject> cardTransactionDetails = dbVar.executeRawqueryJSON("SELECT * FROM card_transactions_processing WHERE invoice_id='" + InvoiceNumber + "' ");
 
                     subarr.put("completeinvoiceDetails", InvoiceDetails);
                     subarr.put("invoiceitemstotal", InvoiceItemDetails);
                     subarr.put("invoicetaxdetails", InvoiceTaxDetails);
                     subarr.put("categorytaxes", InvoiceCategoryTaxDetails);
                     subarr.put("splitpayments", splitInvoiceDetails);
+                    subarr.put("card_transactions_details",cardTransactionDetails);
                     subarr.put("bookedtable", bookedTableDetails);
                     dbVar.sendToServerServiceData(subarr);
                 }catch (JSONException exp){}
@@ -1435,6 +1442,8 @@ public class SaveFetchVoidInvoice {
 
                         }
 
+                        markCreditCardTransactionsAsComplete(InvoiceNumber);
+
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -1446,6 +1455,7 @@ public class SaveFetchVoidInvoice {
                     ArrayList<JSONObject> InvoiceItemDetails = dbVar.executeRawqueryJSON("SELECT * FROM "+ dbVar.INVOICE_ITEMS_TABLE + " WHERE invoice_id='" + InvoiceNumber + "'");
                     ArrayList<JSONObject> InvoiceTaxDetails = dbVar.executeRawqueryJSON("SELECT * FROM "+ dbVar.TAX_AMOUNT_TABLE + " WHERE invoice_id='" + InvoiceNumber + "'");
                     ArrayList<JSONObject> InvoiceCategoryTaxDetails = dbVar.executeRawqueryJSON("SELECT * FROM "+ dbVar.CATEGORY_TAX_AMOUNT_TABLE + " WHERE invoice_id='" + InvoiceNumber + "'");
+                    ArrayList<JSONObject> cardTransactionDetails = dbVar.executeRawqueryJSON("SELECT * FROM card_transactions_processing WHERE invoice_id='" + InvoiceNumber + "' ");
 
                     JSONObject subarr = new JSONObject();
                     try {
@@ -1456,6 +1466,7 @@ public class SaveFetchVoidInvoice {
                         subarr.put("invoicetaxdetails",InvoiceTaxDetails);
                         subarr.put("categorytaxes",InvoiceCategoryTaxDetails);
                         subarr.put("deletedItemsFromSave",deletedItemsList);
+                        subarr.put("card_transactions_details",cardTransactionDetails);
                         dbVar.sendToServerServiceData(subarr);
 
                     } catch (JSONException e) {
@@ -1891,5 +1902,73 @@ public class SaveFetchVoidInvoice {
             }
         }
         return itemsDeleted;
+    }
+
+
+    private static void markCreditCardTransactionsAsComplete(String InvoiceNumber) {
+        ArrayList<JSONObject> InvoiceDetailsForTransaction = MainActivity.mySqlObj.executeRawqueryJSON("SELECT * FROM "+ dbVar.INVOICE_TOTAL_TABLE + " WHERE invoice_id='" + InvoiceNumber + "'");
+        if(InvoiceDetailsForTransaction.size()==0)
+        {
+            return;
+        }else{
+            JSONObject invoiceROw = InvoiceDetailsForTransaction.get(0);
+            String ModeOfPayment = String.valueOf(invoiceROw.optString(dbVar.INVOICE_PAYMENT_TYPE));
+            if(ModeOfPayment.equals("Card"))
+            {
+                String transactionId = String.valueOf(invoiceROw.optString("cheque_no"));
+                if(!transactionId.equals(""))
+                {
+
+                    ArrayList<JSONObject> cardTransactionDetails = MainActivity.mySqlObj.executeRawqueryJSON("SELECT * FROM card_transactions_processing WHERE pos_transaction_reference_id='" + transactionId + "'");
+                    if(cardTransactionDetails.size()>0) {
+                        JSONObject updateCardTransactionObj = new JSONObject();
+                        try {
+                            String timeC = ConstantsAndUtilities.currentTime();
+                            updateCardTransactionObj.put("modified_timestamp", timeC);
+                            updateCardTransactionObj.put("status", "Completed");
+                            updateCardTransactionObj.put("invoice_id", InvoiceNumber);
+                            updateCardTransactionObj.put("completed_time", timeC);
+
+                            MainActivity.mySqlObj.executeUpdate("card_transactions_processing", updateCardTransactionObj, "pos_transaction_reference_id", transactionId);
+                        } catch (Exception exp) {
+                            exp.printStackTrace();
+                        }
+                    }
+                }
+            }
+            else if(ModeOfPayment.equals("multiple"))
+            {
+                ArrayList<JSONObject> splitInvoiceDetails = MainActivity.mySqlObj.executeRawqueryJSON("SELECT * FROM "+ dbVar.SPLIT_INVOICE_TABLE + " WHERE invoice_id='" + InvoiceNumber + "'");
+                if(splitInvoiceDetails.size()>0)
+                {
+                    for(int b=0; b < splitInvoiceDetails.size(); b++)
+                    {
+                        JSONObject splitInvoiceJSONObj = splitInvoiceDetails.get(b);
+
+                        String transactionId = String.valueOf(splitInvoiceJSONObj.optString("cheque_no"));
+                        String paymentType = String.valueOf(splitInvoiceJSONObj.optString(("payment_type")));
+                        if(paymentType.equals("Card") && !transactionId.equals(""))
+                        {
+                            ArrayList<JSONObject> cardTransactionDetails = MainActivity.mySqlObj.executeRawqueryJSON("SELECT * FROM card_transactions_processing WHERE pos_transaction_reference_id='" + transactionId + "'");
+                            if(cardTransactionDetails.size()>0)
+                            {
+                                JSONObject updateCardTransactionObj = new JSONObject();
+                                try {
+                                    String timeC = ConstantsAndUtilities.currentTime();
+                                    updateCardTransactionObj.put("modified_timestamp", timeC);
+                                    updateCardTransactionObj.put("status", "Completed");
+                                    updateCardTransactionObj.put("invoice_id", InvoiceNumber);
+                                    updateCardTransactionObj.put("completed_time", timeC);
+
+                                    MainActivity.mySqlObj.executeUpdate("card_transactions_processing", updateCardTransactionObj, "pos_transaction_reference_id", transactionId);
+                                } catch (Exception exp) {
+                                    exp.printStackTrace();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

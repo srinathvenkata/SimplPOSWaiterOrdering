@@ -50,6 +50,7 @@ import android.widget.Toast;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.TextHttpResponseHandler;
+import com.simplpos.waiterordering.helpers.CardPaymentProcessingMaster;
 import com.simplpos.waiterordering.helpers.ConstantsAndUtilities;
 import com.simplpos.waiterordering.helpers.CustomersManager;
 import com.simplpos.waiterordering.helpers.DatabaseHelper;
@@ -204,7 +205,6 @@ public class POSWebActivity extends FragmentActivity {
     public void onResume() {
 
         super.onResume();
-        Log.v("Testing", "Screen has resumed");
     }
 
 
@@ -1507,6 +1507,9 @@ public class POSWebActivity extends FragmentActivity {
                     }
                     /*ServerSyncClass ss = new ServerSyncClass();
                     ss.pendingclear();*/
+
+                    CardPaymentProcessingMaster cpProcessingMaster = new CardPaymentProcessingMaster();
+                    cpProcessingMaster.paymentOfInvoiceCancelled(printInvoiceId);
                 }
             }).start();
 
@@ -2257,7 +2260,122 @@ public class POSWebActivity extends FragmentActivity {
             editor.commit();
 
         }
+        @JavascriptInterface
+        public void initTransactionForAmount(final  String transactionAmountInDollar){
+            tempTransactionDetails = null;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    CardPaymentProcessingMaster cpProcessing = new CardPaymentProcessingMaster();
+                    JSONObject paymentProcessingResult = cpProcessing.processPaymentInDollars(transactionAmountInDollar);
+                    System.out.println("JSON response from payment processing is "+paymentProcessingResult.toString());
+                    if(paymentProcessingResult.has("result_status"))
+                    {
+                        String resultStatus = String.valueOf(paymentProcessingResult.optString("result_status"));
 
+                        tempTransactionDetails = paymentProcessingResult;
+                        if(resultStatus.equals("OK"))
+                        {
+
+                        }else{
+
+                        }
+                    }
+                }
+            }).start();
+        }
+
+        private JSONObject tempTransactionDetails = new JSONObject();
+        @JavascriptInterface
+        public String cardTransactionDetails()
+        {
+            if(tempTransactionDetails==null){ return (new JSONObject()).toString(); }
+            return tempTransactionDetails.toString();
+        }
+        @JavascriptInterface
+        public String checkStatusOfCardProcessing()
+        {
+            if(tempTransactionDetails==null){
+                return "false";
+            }else{
+                try{
+
+                    JSONObject updateTransactionDetailsObj = new JSONObject();
+                    String ECRtransactionID = "";
+                    if(tempTransactionDetails.has("result_status"))
+                    {
+                        String resultStatus = String.valueOf(tempTransactionDetails.get("result_status"));
+                        ECRtransactionID =  String.valueOf(tempTransactionDetails.get("generated_transaction_reference_id"));
+                        String timeC = ConstantsAndUtilities.currentTime();
+                        updateTransactionDetailsObj.put("terminal_transaction_id",String.valueOf(tempTransactionDetails.get("reference_number")));
+                        updateTransactionDetailsObj.put("terminal_transaction_auth_code",String.valueOf(tempTransactionDetails.get("auth_code")));
+                        String approvedAmount = "0.00";
+                        if(!String.valueOf(tempTransactionDetails.get("approved_amount")).equals(""))
+                        {
+                            approvedAmount = String.valueOf(Double.parseDouble(String.valueOf(tempTransactionDetails.get("approved_amount")))   / 100 );
+
+                        }
+                        String tipAmount = "0.00";
+                        if(!String.valueOf(tempTransactionDetails.get("tip_amount")).equals(""))
+                        {
+                            tipAmount = String.valueOf(Double.parseDouble(String.valueOf(tempTransactionDetails.get("tip_amount")))   / 100 );
+
+                        }
+                        updateTransactionDetailsObj.put("transaction_amount",approvedAmount);
+                        updateTransactionDetailsObj.put("response_message",resultStatus);
+                        updateTransactionDetailsObj.put("completed_time",timeC);
+                        updateTransactionDetailsObj.put(dbVar.MODIFIED_DATE,timeC);
+                        updateTransactionDetailsObj.put("response_json",tempTransactionDetails.toString());
+                        if(!resultStatus.equals("OK"))
+                        {
+                            updateTransactionDetailsObj.put("status","Cancelled");
+                            showAlertDialogJS("Error",resultStatus+" while processing card payment");
+                        }else{
+                            updateTransactionDetailsObj.put("tip_amount",tipAmount);
+                            updateTransactionDetailsObj.put("edc_type",tempTransactionDetails.get("edc_type"));
+                            updateTransactionDetailsObj.put("card_holder_name",tempTransactionDetails.get("card_holder_name"));
+                            updateTransactionDetailsObj.put("status","Completed");
+                        }
+                    }
+
+                    if(!ECRtransactionID.equals(""))
+                    {
+                        MainActivity.mySqlObj.executeUpdate("card_transactions_processing",updateTransactionDetailsObj,"pos_transaction_reference_id",ECRtransactionID);
+                    }
+//                    javascriptConnector.call("showResult", "finishedCardPaymentProcessing");
+                    return "true";
+
+                }catch (Exception exp){
+                    exp.printStackTrace();
+                }
+            }
+            return "false";
+        }
+        @JavascriptInterface
+        public void initTransactionForEBTAmount(final  String transactionAmountInDollar)
+        {
+            tempTransactionDetails = null;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    CardPaymentProcessingMaster cpProcessing = new CardPaymentProcessingMaster();
+                    JSONObject paymentProcessingResult = cpProcessing.processEBTPaymentInDollars(transactionAmountInDollar);
+                    System.out.println("JSON response from payment processing is "+paymentProcessingResult.toString());
+                    if(paymentProcessingResult.has("result_status"))
+                    {
+                        String resultStatus = String.valueOf(paymentProcessingResult.optString("result_status"));
+
+                        tempTransactionDetails = paymentProcessingResult;
+                        if(resultStatus.equals("OK"))
+                        {
+
+                        }else{
+
+                        }
+                    }
+                }
+            }).start();
+        }
     }
 
     private void printItemsList() {

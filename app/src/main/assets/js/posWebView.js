@@ -42,6 +42,8 @@ var reasonProvided = false;
 var saveOrFetchInPromptReason = "";
 
 
+var allDepartments = null;
+
 jQuery(document).ready(function(){
 
 setScreenDimensions();
@@ -207,6 +209,7 @@ keyboardFocus();
 				if(params.homedelivery_text !=""){jQuery("#homeDeliverySpan").html(params.homedelivery_text);}
 				pathToImages = params.pathToImages;
 				var departments = params.departments;
+                allDepartments = params.departments;
 				var totalDeptsString = "";
 				var departmentActive = "";
 				for(var j=0;j< departments.length ; j++)
@@ -2371,6 +2374,7 @@ function loadPaypopup(){
 	jQuery(".paypopup").show();
 	jQuery("#givenAmount").html(jQuery("#grandTotal").val());
 	jQuery("#givenAmountVal").val(jQuery("#grandTotal").val());
+    jQuery("#initiateCardPayment").val(jQuery("#grandTotal").val());
 	jQuery("#totalAmountDisplay").html(jQuery("#grandTotal").val());
 	jQuery("#confirmPaymentBtn").prop('disabled', false);
 	payPopupFlag = true;
@@ -2498,7 +2502,8 @@ function finalPay()
 		jQuery("#paymentType"+newPaymentRow).val(amountBeingPaid);
 		jQuery("#modeOfPayment"+newPaymentRow).val(presentmodeOfPayment);
 		jQuery("#paymentRefNo"+newPaymentRow).val(paymentReferenceNumber);
-		
+
+        jQuery("#initiateCardPayment").val((jQuery("#givenAmount").html()));
 	}
 	jQuery("#paymentRefNo").val("");
 	var serializedData = jQuery("#invoiceAndItemsForm").serialize();

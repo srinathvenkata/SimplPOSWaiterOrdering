@@ -562,6 +562,15 @@ public class DatabaseVariables {
     public static final String PRE_ATTRIBUTE = "attribute";
     public static final String PRE_VALUE = "value";
 
+
+    public static final String CARD_PROCESSING_TERMINAL_TABLE = "card_processing_terminal";
+    public static final String CARD_PROCESSING_MANUFACTURER = "terminal_manufacturer";
+    public static final String CARD_PROCESSING_CONNECTION_TYPE = "terminal_connection_type";
+    public static final String CARD_PROCESSING_CONNECTION_ADDRESS = "terminal_connection_address";
+    public static final String CARD_PROCESSING_CONNECTION_PORT_NUMBER = "terminal_connection_port_number";
+    public static final String CARD_PROCESSING_ENABLE_TIPS = "terminal_connection_enable_tips";
+    public static final String CARD_PROCESSING_ENABLE_TAX = "terminal_connection_enable_tax";
+
     public static final String MODIFIER_TABLE = "modifier_table";
     public static final String MODIFIER_ITEM_NO = "modifier_item_no";
     public static final String MODIFIER_INCLUDED = "price_included";
@@ -842,7 +851,7 @@ public class DatabaseVariables {
     }
     public void replaceAttributesWithValues(String attribute, String valueOfAttribute) {
 
-
+        Log.v("Error","SELECT * FROM "+dbHelper.PREFERENCES_TABLE+" WHERE "+dbHelper.PREFERENCES_ATTRIBUTE+"='"+attribute+"'");
         ArrayList<JSONObject> attributeResults = dbHelper.executeRawqueryJSON("SELECT * FROM "+dbHelper.PREFERENCES_TABLE+" WHERE "+dbHelper.PREFERENCES_ATTRIBUTE+"='"+attribute+"'");
         if(attributeResults.size()==1)
         {
@@ -869,6 +878,20 @@ public class DatabaseVariables {
         }
     }
 
+
+    public String valueForAttribute(String tableName,String attributeName)
+    {
+        String returningValue = "";
+        MySQLJDBC sqlCrmObj = MainActivity.mySqlCrmObj;
+        ArrayList<JSONObject> checkExistingObj = sqlCrmObj.executeRawqueryJSON("SELECT * FROM "+tableName+" WHERE attribute='"+attributeName+"'");
+        if(checkExistingObj.size()!=0)
+        {
+
+            JSONObject attrRow = checkExistingObj.get(0);
+            returningValue = String.valueOf(attrRow.optString("value"));
+        }
+        return returningValue;
+    }
     public String getValueForAttribute(String attribute) {
         String returnValue = "";
 
