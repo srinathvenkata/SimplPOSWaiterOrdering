@@ -52,7 +52,7 @@ import cz.msebera.android.httpclient.Header;
 public class MainActivity extends FragmentActivity {
     public static MySQLJDBC mySqlObj = null;
     public static MySQLJDBC mySqlCrmObj = null;
-    public static String currencyTypehtml = "&#8377;";
+    public static String currencyTypehtml = "$";
     public DatabaseHelper dbHelper = null;
     WebView webView;
     SharedPreferences preferences = null;//  PreferenceManager.getDefaultSharedPreferences(SplashScreen.this);

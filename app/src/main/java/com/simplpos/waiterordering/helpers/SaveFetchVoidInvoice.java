@@ -794,7 +794,6 @@ public class SaveFetchVoidInvoice {
             e.printStackTrace();
         }
 //                        Log.v("Srinath","New invoice for saving is "+newInvoiceNumber+ " and content values are "+contentValues.toString());
-        Log.v("Srinath","Store ID is "+ obj.toString());
         JSONArray itemIds = obj.optJSONArray("itemIds");
         JSONArray discountInCurrency = obj.optJSONArray("discountInCurrency");
         JSONArray itemNames = obj.optJSONArray("itemNames");

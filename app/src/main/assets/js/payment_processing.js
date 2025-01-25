@@ -15,6 +15,8 @@ function cardProcessingCheck(){
             var resp = AndroidInterface.checkStatusOfCardProcessing();
             if(resp=="true")
             {
+
+                hideLoadingPopupModal();
                 isCardProcessing = false;
                 processAmountPaidFromTerminal();
             }
@@ -64,6 +66,7 @@ function processAmountPaidFromTerminal()
     var cardtransactiondetails = JSON.parse(AndroidInterface.cardTransactionDetails());
 //
     try{
+    hideLoadingPopupModal();
     isCardProcessing = false;
     AndroidInterface.printLog("Card transaction details in log are ",JSON.stringify(cardtransactiondetails));
     if(cardtransactiondetails['result_status']!='OK'){ return;}

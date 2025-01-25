@@ -239,6 +239,7 @@ public class MySQLJDBC {
 
         } catch (Exception e) {
             e.printStackTrace();
+            Log.v("DatabaseException",e.getClass().getName() + ": " + e.getMessage());
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
         }finally {

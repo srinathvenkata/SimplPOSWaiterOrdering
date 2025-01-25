@@ -1,5 +1,7 @@
 package com.simplpos.waiterordering.helpers;
 
+import android.util.Log;
+
 import com.simplpos.waiterordering.MainActivity;
 import com.simplpos.waiterordering.helpers.paymentprocessors.PAXPaymentProcessing;
 
@@ -202,9 +204,10 @@ public class CardPaymentProcessingMaster {
             insertIntoTransactionsObj.put("tip_amount","0");
             insertIntoTransactionsObj.put("card_holder_name","");
             insertIntoTransactionsObj.put("edc_type","");
+            insertIntoTransactionsObj.put("response_message","");
+            insertIntoTransactionsObj.put("response_json","");
             insertIntoTransactionsObj.put("employee",ConstantsAndUtilities.userid);
             insertIntoTransactionsObj.put("initiated_time",timeC);
-
             MainActivity.mySqlObj.executeInsert("card_transactions_processing", insertIntoTransactionsObj);
 
             if(terminalCompany.equals("PAX"))
@@ -214,6 +217,7 @@ public class CardPaymentProcessingMaster {
             }
         }catch (Exception exp)
         {
+            Log.v("ExceptionInTransaction",exp.getMessage());
             exp.printStackTrace();
         }
         return paymentProcessingResult;
@@ -632,7 +636,6 @@ public class CardPaymentProcessingMaster {
             return printContent;
         }
         else {
-//            JSONParser parser = new JSONParser();
 
             for(int b=0; b < cardTransactionDetails.size(); b++)
             {
@@ -644,19 +647,61 @@ public class CardPaymentProcessingMaster {
                 String cardInfoData = "";
                 String ecrRefData = "";
                 String appLabData = "";
-                cardType = String.valueOf(transactionDetailsObj.optString("edc_type"));
-                String transactionAmount = String.valueOf(transactionDetailsObj.optString("transaction_amount"));
-                String cardHolderName = String.valueOf(transactionDetailsObj.optString("card_holder_name"));
-                String cardNumberDetails = "";
-                String transactionAuthorizationNumber = "";//String.valueOf(transactionDetailsObj.get("auth_code"));
+                String tipValue = String.valueOf(transactionDetailsObj.opt("tip_amount"));
+                cardType = String.valueOf(transactionDetailsObj.opt("edc_type"));
+                String transactionAmount = String.valueOf(transactionDetailsObj.opt("transaction_amount"));
+                String cardHolderName = String.valueOf(transactionDetailsObj.opt("card_holder_name"));
+
+                String remainingBalanceOnCard = "0.00";
+                String cashBenefitBalanceOnCard = "0.00";
+
                 try {
-                    JSONObject responseJSON  = new JSONObject(transactionDetailsObj.optString("response_json"));//
-                    String extraData = String.valueOf(responseJSON.optString("extra_data"));
-                    transactionAuthorizationNumber = String.valueOf(responseJSON.optString("auth_code"));
+                    JSONObject jsonResponse = transactionDetailsObj.optJSONObject("response_json");
+
+                    if(jsonResponse.has("remaining_balance"))
+                    {
+                        String remainingBalanceFromResponse = String.valueOf(jsonResponse.has("remaining_balance"));
+                        System.out.println("Remaining balance is "+remainingBalanceFromResponse);
+                        if(!remainingBalanceFromResponse.equals(""))
+                        {
+                            if(Integer.parseInt(remainingBalanceFromResponse) != 0)
+                            {
+                                cashBenefitBalanceOnCard = String.valueOf(Double.parseDouble(remainingBalanceFromResponse)  / 100 );
+                            }
+                        }
+                    }
+
+                    if(jsonResponse.has("extra_balance"))
+                    {
+                        String remainingBalanceFromResponse = String.valueOf(jsonResponse.opt("extra_balance"));
+                        System.out.println("Extra balance is "+remainingBalanceFromResponse);
+                        if(!remainingBalanceFromResponse.equals(""))
+                        {
+                            if(Integer.parseInt(remainingBalanceFromResponse) != 0)
+                            {
+                                remainingBalanceOnCard = String.valueOf(Double.parseDouble(remainingBalanceFromResponse)  / 100 );
+                            }
+                        }
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                String cardNumberDetails = "";
+                String transactionAuthorizationNumber = "";//String.valueOf(transactionDetailsObj.opt("auth_code"));
+                try {
+                    JSONObject responseJSON  = (transactionDetailsObj.optJSONObject("response_json"));
+                    String extraData = String.valueOf(responseJSON.opt("extra_data"));
+                    transactionAuthorizationNumber = String.valueOf(responseJSON.opt("auth_code"));
                     expiryDate = PAXPaymentProcessing.getTagValue(extraData,"ExpDate");
                     String ecrRefNum = PAXPaymentProcessing.getTagValue(extraData,"ECRRefNum");
                     String appLab = PAXPaymentProcessing.getTagValue(extraData,"APPLAB");
                     String cardNum = PAXPaymentProcessing.getTagValue(extraData,"CARDBIN");
+                    if(responseJSON.has("last_four_digits_of_card"))
+                    {
+                        cardNum = String.valueOf(responseJSON.opt("last_four_digits_of_card"));
+                    }
                     if(expiryDate.equals("")){ expiryDate = "XXXX";}
                     System.out.println("Extra data is "+extraData);
                     expiryDate = ConstantsAndUtilities.addChar(expiryDate, '/',2);
@@ -673,6 +718,12 @@ public class CardPaymentProcessingMaster {
                         cardNum = String.format("%-16s", cardNum).replace(' ', '*');
                         cardNumberDetails =  "<tr><td colspan=\"2\">Card Number : </td><td colspan=\"2\">"+cardNum+"</td></tr>";
                     }
+                    if(responseJSON.has("last_four_digits_of_card"))
+                    {
+                        cardNum = String.valueOf(responseJSON.has("last_four_digits_of_card"));
+                        cardNum = String.format("%16s", cardNum).replace(' ', '*');
+                        cardNumberDetails =  "<tr><td colspan=\"2\">Card Number : </td><td colspan=\"2\">"+cardNum+"</td></tr>";
+                    }
                     if(!appLab.equals(""))
                     {
                         appLabData =  "<tr><td colspan=\"4\">Card : "+appLab+"</td></tr>";
@@ -686,12 +737,32 @@ public class CardPaymentProcessingMaster {
                 printContent += cardNumberDetails;
                 printContent += cardHolderData;
                 printContent += ecrRefData;
+                String tipContent = "";
                 printContent += "<tr><td colspan=\"2\" >Transaction Amount</td><td colspan=\"2\" align=\"left\">$&nbsp;"+nf.format(Double.parseDouble(transactionAmount))+"</td></tr>";
                 printContent += "<tr><td colspan=\"2\" >Authorization Number</td><td colspan=\"2\">"+transactionAuthorizationNumber+"</td></tr>";
-                printContent += "<tr><td colspan=\"4\" style=\"border-bottom:2px solid #000;\">&nbsp;</td></tr>";
+                if(tipEnabled()){
+                    tipContent = "<tr class=\"tipContentOfCardTransaction\"><td colspan=\"2\">Tip Amount</td><td colspan=\"2\">$&nbsp;"+nf.format(Double.parseDouble(tipValue))+"</td></tr>";
+                    printContent += tipContent;
+                }
+                if(!remainingBalanceOnCard.equals("0.00")) {
+                    printContent += "<tr class=\"remainingBalanceOnCard\"><td colspan=\"2\" >Available Balance</td><td colspan=\"2\">$&nbsp;" + nf.format(Double.parseDouble(remainingBalanceOnCard)) + "</td></tr>";
+                }
+                if(!cashBenefitBalanceOnCard.equals("")){
+                    printContent += "<tr class=\"cashBenefitBalanceOnCard\"><td colspan=\"2\" >Cash Benefit Balance</td><td colspan=\"2\">$&nbsp;" + nf.format(Double.parseDouble(cashBenefitBalanceOnCard)) + "</td></tr>";
+
+                }
+                printContent += "<tr><td colspan=\"4\" style=\"border-bottom:2px solid #000;\">&nbsp;</td></tr><tr><td colspan=\"4\" style=\"\">&nbsp;<br /><br /><br /></td></tr>";
             }
 
         }
         return printContent;
+    }
+
+    private Boolean tipEnabled() {
+        DatabaseVariables dbVar = new DatabaseVariables();
+
+        String tipEnabledValue =  dbVar.valueForAttribute(DatabaseVariables.CARD_PROCESSING_TERMINAL_TABLE,DatabaseVariables.CARD_PROCESSING_ENABLE_TIPS);
+        if(tipEnabledValue.equals("") || tipEnabledValue.equals("No")){ return false; }
+        else{ return true; }
     }
 }

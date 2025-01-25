@@ -2946,6 +2946,7 @@ jQuery(document).ready(function(){
                                             								catch(Err){ console.log(Err.stack);}
 										}
 							    taxesValue = taxesValue.toFixed(2);
+							    invoiceItemsValue = invoiceItemsValue.toFixed(2);
 							    // invoiceAmt = Number(invoiceAmt.toFixed(2));
 								jQuery("#totalQtyOfItemsDisplay").html((totalQtyOfItems.toString()));
 							    jQuery("#subTotalOfInvoice").html((invoiceItemsValue.toString())+ "&nbsp;"+currencyHtmlSymbol);

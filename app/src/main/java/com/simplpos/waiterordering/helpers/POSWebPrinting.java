@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -1157,324 +1158,347 @@ public class POSWebPrinting {
         }
     }
 
-
-    public String htmlContentForInvoice(String printInvoiceId, JSONObject contentObj){
+    public String htmlContentForInvoice(String printInvoiceId, JSONObject contentObj)
+    {
 
         String printString="";
+        MySQLJDBC sqlCrmObj = MainActivity.mySqlCrmObj;
+        MySQLJDBC sqlObj = MainActivity.mySqlObj;
+        NumberFormat nf = NumberFormat.getInstance();
+        nf.setMinimumFractionDigits(2);
+        nf.setMaximumFractionDigits(2);
+        Preferences prefs = Preferences.userRoot();
+        DecimalFormat df = new DecimalFormat("#.##");
+        Double totalDiscountGivenOnSubtotal = 0.0d;
+        Double totalSavingsOnMrp = 0.0d;
+        Boolean hasMRPforAllItems = true;
+        String heightFunction = "function getHeight(){ var x = document.getElementsByTagName(\"body\")[0].offsetHeight;  AndroidInterface.showToast(\"Toast Check\" + x); } " +
+                " ";
+        String headTagContent = " <head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"initial-scale=1.0, width=device-width, minimum-scale=0.1, user-scalable=no\" /><style type=\"text/css\"> *{ margin:0px; padding:0px;}body { background-color:none; margin-left:5px;font-family : Arial;color:#000000;font-size:14px;} .tablehead{font-family : Arial;color:#000000;font-size:32px;} table td{font-family : Arial;color:#000000;font-size:22px; line-height:40px; padding:0px 4px;} .bottomborderStyle { border-bottom:2px solid #000000;} .topborderStyle { border-top:2px solid #000000;}  .topandbottomborderStyle { border-top:2px solid #000000; border-bottom:2px solid #000000;} table td.totalAmtWithRoundoff,table td.grandTotalTag{ font-size:32px; } </style>" +
+                "</head>";
+        int randomNumber= 	new Random().nextInt((89 - 10) + 1) + 10;
+        String randomNumberString = String.valueOf(randomNumber);
+        String tokenNoStr = (obtainTokenNumber().equals("")) ? "" : "<tr><td colspan=\"4\"><h4 style=\"text-align:center; font-size:20px;\">"+ (obtainTokenNumber())+"</h4></td></tr>";
+        heightFunction += "function returnHeight(){var x = document.getElementsByTagName(\"body\")[0].offsetHeight;  AndroidInterface.submitHeight(x);}";
+        String numbersDisplay = "";
+        for(int k=1;k<=randomNumber;k++)
+        {
+            numbersDisplay += (String.valueOf(k)) + "<br />";
+        }
 
-        try {
-            MySQLJDBC sqlCrmObj = MainActivity.mySqlCrmObj;
-            MySQLJDBC sqlObj = MainActivity.mySqlObj;
-            DecimalFormat df = new DecimalFormat("#.##");
-            Double totalDiscountGivenOnSubtotal = 0.0d;
-            Double totalSavingsOnMrp = 0.0d;
-            Boolean hasMRPforAllItems = true;
-            DatabaseVariables dbVar = new DatabaseVariables();
-            String heightFunction = "function getHeight(){ var x = document.getElementsByTagName(\"body\")[0].offsetHeight;  AndroidInterface.showToast(\"Toast Check\" + x); } " +
-                    " ";
-            String headTagContent = " <head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"initial-scale=1.0, width=device-width, minimum-scale=0.1, user-scalable=no\" /><style type=\"text/css\"> *{ margin:0px; padding:0px;}body { background-color:none; margin-left:5px;font-family : Arial;color:#000000;font-size:14px;} .tablehead{font-family : Arial;color:#000000;font-size:32px;} table td{font-family : Arial;color:#000000;font-size:22px; line-height:40px; padding:0px 4px;} .bottomborderStyle { border-bottom:2px solid #000000;} .topborderStyle { border-top:2px solid #000000;}  .topandbottomborderStyle { border-top:2px solid #000000; border-bottom:2px solid #000000;} table td.totalAmtWithRoundoff,table td.grandTotalTag{ font-size:32px; } </style>" +
-                    "</head>";
-            int randomNumber = new Random().nextInt((89 - 10) + 1) + 10;
-            String randomNumberString = String.valueOf(randomNumber);
-            String tokenNoStr = (obtainTokenNumber().equals("")) ? "" : "<tr><td colspan=\"4\"><h4 style=\"text-align:center; font-size:20px;\">" + (obtainTokenNumber()) + "</h4></td></tr>";
-            heightFunction += "function returnHeight(){var x = document.getElementsByTagName(\"body\")[0].offsetHeight;  AndroidInterface.submitHeight(x);}";
-            String numbersDisplay = "";
-            for (int k = 1; k <= randomNumber; k++) {
-                numbersDisplay += (String.valueOf(k)) + "<br />";
-            }
-            ConstantsAndUtilities cv = new ConstantsAndUtilities();
-            String primaryPrinterName = cv.primaryPrinterName();
-            String selectQuery2 = "SELECT  * FROM printers where printer_name='"+primaryPrinterName+"'";
-            ArrayList<JSONObject> printer1Details = sqlCrmObj.executeRawqueryJSON(selectQuery2);
-            String headlines = "", footerEmpty = "";
-            int iPaperWidth = 3;
-            String printerName = "";
-            if (printer1Details != null && printer1Details.size() > 0) {
+        String selectQuery2 = "SELECT  * FROM printers where is_primary_printer='Yes' ORDER BY _id DESC LIMIT 1";
+        ArrayList<JSONObject> printer1Details = sqlCrmObj.executeRawqueryJSON(selectQuery2);
+        String headlines = "", footerEmpty=""; int iPaperWidth=3;
+        if (printer1Details!=null && printer1Details.size() > 0) {
 
 
-                for (int cntPrnt1 = 0; cntPrnt1 < printer1Details.size(); cntPrnt1++) {
-                    JSONObject currentRowPrnt1 = printer1Details.get(cntPrnt1);
-                    headlines = (String) currentRowPrnt1.optString("header_characters");
-                    footerEmpty = (String) currentRowPrnt1.optString("footer_characters");
-                    printerName = (String) currentRowPrnt1.optString("printer_name");
-//                String paperWidth = (String) currentRowPrnt1.optString("paper_width");
+            for(int cntPrnt1=0; cntPrnt1<printer1Details.size();cntPrnt1++)
+            {
+                JSONObject currentRowPrnt1 = printer1Details.get(cntPrnt1);
+                headlines = (String) currentRowPrnt1.optString("header_characters");
+                footerEmpty = (String) currentRowPrnt1.optString("footer_characters");
+                String paperWidth = (String) currentRowPrnt1.optString("paper_width");
 //                iPaperWidth = (paperWidth.equals("3 inch")) ? (570) : (380);
 
-                }
-
-            }
-            try {
-                if (contentObj.get("content_type").equals("reprintinvoice")) {
-                    headlines = "Reprinted Invoice <br />" + headlines;
-                }
-            } catch (Exception exp) {
-                exp.printStackTrace();
             }
 
-            String orderRefNum = "";
-            ArrayList<JSONObject> invoiceDetails = sqlObj.executeRawqueryJSON("SELECT * FROM invoice_total_table WHERE invoice_id='" + printInvoiceId + "'");
-            String storeName = "", storeAddress = "", storePhoneNum = "", orderTypeString = "";
-            if (invoiceDetails.size() == 1) {
-                orderRefNum = (String) invoiceDetails.get(0).optString(DatabaseVariables.INVOICE_HOLD_ID);
-                if (!orderRefNum.equals("")) {
-                    orderRefNum = "<tr><td align=\"center\"  id=\"kotOrderRefNum\" colspan=\"4\" style=\"font-size:22px\">ORDER REF. NO# " + orderRefNum + " </td></tr>";
-                }
-                String storeIdForInvoice = (String) invoiceDetails.get(0).optString(DatabaseVariables.STORE_ID);
-                if (!storeIdForInvoice.equals("")) {
-                    ArrayList<JSONObject> storeDetails = sqlObj.executeRawqueryJSON("SELECT * FROM " + DatabaseVariables.STORE_TABLE + " WHERE store_id='" + storeIdForInvoice + "'");
-                    if (storeDetails.size() == 1) {
-                        storeName = (String) storeDetails.get(0).optString(dbVar.STORE_NAME);
-                        storeAddress = storeDetails.get(0).optString(dbVar.STORE_STREET) + ",\n" + storeDetails.get(0).optString(dbVar.STORE_CITY) + "-" + storeDetails.get(0).optString(dbVar.STORE_POSTAL);
-                        storePhoneNum = (!storeDetails.get(0).optString(dbVar.STORE_NUMBER).equals("")) ? ("<tr><td align=\"center\" colspan=\"4\" style=\"font-size:22px\">Phone No# " + storeDetails.get(0).optString(dbVar.STORE_NUMBER) + " </td></tr>") : "";
-                    }
-                }
-
-                orderTypeString = orderTypeName((String) invoiceDetails.get(0).optString(dbVar.ORDER_TYPE));
-            }
-            ArrayList<JSONObject> invoiceItemDetails = sqlObj.executeRawqueryJSON("SELECT * FROM invoice_items_table WHERE invoice_id='" + printInvoiceId + "'");
-            ArrayList<JSONObject> invoiceItemCountDetails = sqlObj.executeRawqueryJSON("SELECT SUM(item_quantity) as totalQuantity FROM invoice_items_table WHERE invoice_id='" + printInvoiceId + "'");
-            String customerCopyString = "";
-            printInfoObj = contentObj;
-            if (printInfoObj.optString("content_type").equals("printpreview")) {
-                customerCopyString = "<tr><td colspan=\"4\" style=\"text-align:center;\"><span class=\"tablehead\">Customer Copy</span></td></tr>";
-            }
-            if (printInfoObj.optString("content_type").equals("duplicatecustomercopy")) {
-                customerCopyString = "<tr><td colspan=\"4\" style=\"text-align:center;\"><span class=\"tablehead\">Duplicate Bill</span></td></tr>";
-            }
-            String totalQuantityOfItems = (String) invoiceItemCountDetails.get(0).optString("totalQuantity");
-            String billContent = customerCopyString + "<tr> <th align=\"center\" colspan=\"4\"><span class=\"tablehead\">" + headlines + "</span></th></tr><tr class=\"storeNameRow\"><td align=\"center\" colspan=\"4\" style=\"font-size:22px;font-weight:bold;\">" + storeName + "</td></tr><tr><td align=\"left\" colspan=\"4\" style=\"text-align:center; font-size:22px; font-weight:bold;\">INVOICE# " + printInvoiceId + "</td></tr>" + tokenNoStr + orderRefNum + "";
-            billContent += "<tr><td align=\"center\" colspan=\"4\" style=\"font-size:22px\">" + storeAddress + "</td></tr>" + storePhoneNum + "<tr><td align=\"left\"  colspan=\"4\" style=\"font-size:22px\">DATE/TIME:  " + (ConstantsAndUtilities.currentTimeDayMonthFormat()) + " </td></tr><tr ><td align=\"left\"  colspan=\"2\" style=\"font-size:22px\">CASHIER: " + (invoiceDetails.get(0).optString(dbVar.INVOICE_EMPLOYEE)) + " </td><td align=\"right\"  colspan=\"2\" style=\"font-size:22px\">Order Type: " + orderTypeString + " </td></tr><tr><td align=\"left\"  colspan=\"2\" style=\"font-size:22px;padding-bottom:12px;\">Item Count: " + (invoiceItemDetails.size()) + " </td><td align=\"right\"  colspan=\"2\" style=\"font-size:22px;padding-bottom:12px;\">Total Qty: " + df.format(Double.parseDouble(totalQuantityOfItems)) + " </td></tr>";
-            String currencyHtmlStr = MainActivity.currencyTypehtml;
-
-            String qtyAfterNameValue = "No";
-            ArrayList<JSONObject> qtyAfterNameValueDetails = sqlCrmObj.executeRawqueryJSON("SELECT * FROM store_preferences WHERE attribute='"+ ConstantsAndUtilities.QTY_PRINT_AFTER_NAME +"'");
-            if(qtyAfterNameValueDetails.size()==1)
-            {
-                qtyAfterNameValue = (String) qtyAfterNameValueDetails.get(0).get("value");
-            }
-            Boolean qtyPrintAfterNameValue = false;
-            if(qtyAfterNameValue.equals("Yes")){ qtyPrintAfterNameValue = true; }
-
-            String itemsListStr = "";
-            if(qtyPrintAfterNameValue==false) { itemsListStr ="<tr style=\"border-bottom:2px solid #000000;\"><td align=\"left\" style=\"font-size:22px\" class=\"topandbottomborderStyle\">Qty</td><td class=\"topandbottomborderStyle\">Item</td><td class=\"topandbottomborderStyle\" align=\"right\">Unit Price</td><td align=\"right\" class=\"topandbottomborderStyle\">Amount</td></tr> "; }
-            else{ itemsListStr ="<tr style=\"border-bottom:2px solid #000000;\"><td class=\"topandbottomborderStyle\">Item</td><td align=\"left\" style=\"font-size:22px\" class=\"topandbottomborderStyle\">Qty</td><td class=\"topandbottomborderStyle\" align=\"right\">Unit Price</td><td align=\"right\" class=\"topandbottomborderStyle\">Amount</td></tr> ";}
-
-            //= "<tr valign='top'><td align=\"left\">1 </td> <td> Biryani Rice</td><td align=\"right\"><span style=\"white-space:nowrap;\">110.00 &#8377</span> </td><td align=\"right\"><span style=\"white-space:nowrap;\"> 110.00 &#8377</span></td></tr><tr valign='top'><td align=\"left\">1 </td> <td> Biryani Rice Full</td><td align=\"right\"><span style=\"white-space:nowrap;\">150.00 &#8377</span> </td><td align=\"right\"><span style=\"white-space:nowrap;\"> 150.00 &#8377</span></td></tr>";
-            Double subTotal = 0.0d;
-            if (invoiceItemDetails.size() > 0) {
-                for (int p = 0; p < invoiceItemDetails.size(); p++) {
-                    String quantityString = (String) invoiceItemDetails.get(p).get(dbVar.INVOICE_QUANTITY);
-                    String itemName = (String) invoiceItemDetails.get(p).get(dbVar.INVOICE_ITEM_NAME);
-                    String totalPrice = (String) invoiceItemDetails.get(p).get(dbVar.INVOICE_YOUR_COST);
-                    Double discountGivenOnItem = 0.0d;
-                    if (!((String) invoiceItemDetails.get(p).get(dbVar.INVOICE_DISCOUNT)).equals("")) {
-                        discountGivenOnItem = Double.parseDouble((String) invoiceItemDetails.get(p).get(dbVar.INVOICE_DISCOUNT));
-                        totalDiscountGivenOnSubtotal += discountGivenOnItem;
-                    }
-                    Double unitPrice = (Double.parseDouble(totalPrice)) / (Double.parseDouble(quantityString));
-                    Double qtyPurchased = (Double.parseDouble(quantityString));
-                    String units = "";
-                    ArrayList<JSONObject> optionalInfoDetails = SplashScreen.dbHelper.executeRawqueryJSON("SELECT * FROM " + dbVar.OPTIONAL_INFO_TABLE + " WHERE " + dbVar.INVENTORY_ITEM_NO + "='" + invoiceItemDetails.get(p).get(dbVar.INVOICE_ITEM_ID) + "'");
-                    ArrayList<JSONObject> inventoryInfoDetails = SplashScreen.dbHelper.executeRawqueryJSON("SELECT * FROM " + dbVar.INVENTORY_TABLE + " WHERE " + dbVar.INVENTORY_ITEM_NO + "='" + invoiceItemDetails.get(p).get(dbVar.INVOICE_ITEM_ID) + "'");
-                    if (optionalInfoDetails.size() == 1) {
-                        units = (String) optionalInfoDetails.get(0).optString(dbVar.UNIT_TYPE);
-                    }
-                    if (!units.equals("")) {
-                        quantityString += " " + units;
-                    }
-                    Boolean itemShouldDisplayMRP = false;
-                    Double mrp = 0.0d;
-                    try {
-                        mrp = Double.parseDouble((String) optionalInfoDetails.get(0).optString(dbVar.INVENTORY_MRP));
-
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                    if ((mrp == 0) || mrp < unitPrice) {
-                        hasMRPforAllItems = false;
-                    } else {
-                        itemShouldDisplayMRP = true;
-                        totalSavingsOnMrp += (mrp * (qtyPurchased)) - (Double.parseDouble(totalPrice));
-                    }
-
-                    String serviceEmployeeId = "";
-                    serviceEmployeeId = "" ; //serviceEmployeeForUniqueId((String) invoiceItemDetails.get(p).get(dbVar.UNIQUE_ID));
-                    itemName += serviceEmployeeId;
-
-                    if(qtyPrintAfterNameValue==false) {
-                        itemsListStr += "<tr class=\"billItemsRow\" valign='top'><td align=\"left\" style=\"font-size:22px\">" + quantityString + "</td>"+"<td>"+itemName+"</td>";
-                    }else{
-                        itemsListStr += "<tr class=\"billItemsRow\" valign='top'>"+"<td>"+itemName+"</td><td align=\"left\" style=\"font-size:22px\">" + quantityString + "</td>";
-                    }
-                    itemsListStr +="<td align=\"right\"><span style=\"white-space:nowrap;\">"+ (df.format(unitPrice).toString()) +"&nbsp;"+currencyHtmlStr+"</span></td><td align=\"right\"><span style=\"white-space:nowrap;\">"+ (df.format(Double.parseDouble(totalPrice.toString()))) +"&nbsp;"+currencyHtmlStr+"</span></td></tr>";
-                    if(discountGivenOnItem!=0)
-                    {
-
-                        if(qtyPrintAfterNameValue==false) {
-                            itemsListStr += "<tr class=\"totalDiscountGivenOnItemRow\"><td>&nbsp;</td><td colspan=\"2\">Total Discount Given <span style=\"white-space:nowrap;\">" + (df.format(discountGivenOnItem)) + "&nbsp;" + currencyHtmlStr + "</span></td><td>&nbsp;</td></tr>";
-                            itemsListStr += "<tr class=\"actualPriceOfItemRow\"><td>&nbsp;</td><td colspan=\"2\">Total Selling Price <span style=\"white-space:nowrap;\">" + (df.format(discountGivenOnItem + (Double.parseDouble((String) totalPrice)))) + "&nbsp;" + currencyHtmlStr + "</span></td><td>&nbsp;</td></tr>";
-                        }else{
-                            itemsListStr += "<tr class=\"totalDiscountGivenOnItemRow\"><td colspan=\"3\">Total Discount Given <span style=\"white-space:nowrap;\">" + (df.format(discountGivenOnItem)) + "&nbsp;" + currencyHtmlStr + "</span></td><td>&nbsp;</td></tr>";
-                            itemsListStr += "<tr class=\"actualPriceOfItemRow\"><td colspan=\"3\">Total Selling Price <span style=\"white-space:nowrap;\">" + (df.format(discountGivenOnItem + (Double.parseDouble((String) totalPrice)))) + "&nbsp;" + currencyHtmlStr + "</span></td><td>&nbsp;</td></tr>";
-                        }
-                    }
-                    if(itemShouldDisplayMRP==true)
-                    {
-
-                        if(qtyPrintAfterNameValue==false) {
-                            itemsListStr += "<tr class=\"mrpPriceOfItemRow\"><td>&nbsp;</td><td colspan=\"2\">MRP <span style=\"white-space:nowrap;\">" + (df.format((mrp))) + "&nbsp;" + currencyHtmlStr + "</span></td><td>&nbsp;</td></tr>";
-                        }else{
-                            itemsListStr += "<tr class=\"mrpPriceOfItemRow\"><td colspan=\"3\">MRP <span style=\"white-space:nowrap;\">" + (df.format((mrp))) + "&nbsp;" + currencyHtmlStr + "</span></td><td>&nbsp;</td></tr>";
-                        }
-                    }
-                    String taxStr = "";
-                    if (inventoryInfoDetails.size() == 1) {
-                        JSONObject inventoryInfo = inventoryInfoDetails.get(0);
-                        taxStr = (String) inventoryInfo.get(dbVar.INVENTORY_TAXONE);
-                    }
-                    if (!taxStr.equals("")) {
-                        String itemInclusiveTax = itemwiseTaxCalc(taxStr, Double.parseDouble(totalPrice));
-                        String gstStr = "";
-                        if(qtyPrintAfterNameValue==false) {
-                            gstStr = "<tr><td>&nbsp;</td><td colspan=\"3\">" + itemInclusiveTax + "</td></tr>";
-                        }else{
-                            gstStr = "<tr><td colspan=\"3\">" + itemInclusiveTax + "</td><td>&nbsp;</td></tr>";
-                        }
-                        itemsListStr += gstStr;
-                    }
-                    subTotal += (Double.parseDouble(totalPrice));
-                }
-            }
-
-            ArrayList<JSONObject> InvoiceTaxDetails = sqlObj.executeRawqueryJSON("SELECT * FROM " + dbVar.TAX_AMOUNT_TABLE + " WHERE invoice_id='" + printInvoiceId + "'");
-            ArrayList<JSONObject> InvoiceCategoryTaxDetails = sqlObj.executeRawqueryJSON("SELECT * FROM " + dbVar.CATEGORY_TAX_AMOUNT_TABLE + " WHERE invoice_id='" + printInvoiceId + "'");
-
-            ArrayList<JSONObject> NumberOfCategoriesInvoiceCategoryTaxDetails = sqlObj.executeRawqueryJSON("SELECT DISTINCT(" + dbVar.CAT_TAX_CAT_ID + ") FROM " + dbVar.CATEGORY_TAX_AMOUNT_TABLE + " WHERE invoice_id='" + printInvoiceId + "'");
-            String taxCalculationStr = "", modeOfPaymentString = "", calculatedGrandTotal = "";
-            Boolean showOnlyDistinctTaxes = true;
-            Double totalTaxValue = 0.0d;
-            if (InvoiceCategoryTaxDetails.size() > 0 || InvoiceTaxDetails.size() > 0) {
-                taxCalculationStr += "<tr><td colspan=\"4\" align=\"left\">Taxes:</td></tr>";
-                if (NumberOfCategoriesInvoiceCategoryTaxDetails.size() > 1) {
-                    showOnlyDistinctTaxes = true;
-                }
-
-                if (InvoiceCategoryTaxDetails.size() > 0) {
-                    if (showOnlyDistinctTaxes == false) {
-                        for (int k = 0; k < InvoiceCategoryTaxDetails.size(); k++) {
-                            JSONObject taxRow = InvoiceCategoryTaxDetails.get(k);
-                            String printTax = ConstantsAndUtilities.rightPadding((taxRow.get(dbVar.TAX_AMOUNT_NAME)) + " ON " + (taxRow.get(dbVar.CategoryId)), 35);
-
-                            String taxValueStr = ConstantsAndUtilities.leftPadding((String) taxRow.get(dbVar.TAX_AMOUNT_VALUE), 10);
-                            totalTaxValue = totalTaxValue + Double.parseDouble((String) taxRow.get(dbVar.TAX_AMOUNT_VALUE));
-                            taxCalculationStr += "<tr><td colspan=\"3\" align=\"left\">" + printTax + "</td><td align=\"right\">" + taxValueStr + "&nbsp;" + currencyHtmlStr + "</td></tr>";
-                        }
-                    } else {
-                        InvoiceCategoryTaxDetails = sqlObj.executeRawqueryJSON("SELECT * FROM " + dbVar.CATEGORY_TAX_AMOUNT_TABLE + " WHERE invoice_id='" + printInvoiceId + "'");
-                        ArrayList<JSONObject> InvoiceDistinctCategoryTaxDetails = sqlObj.executeRawqueryJSON("SELECT DISTINCT(" + dbVar.TAX_AMOUNT_NAME + ") FROM " + dbVar.CATEGORY_TAX_AMOUNT_TABLE + " WHERE invoice_id='" + printInvoiceId + "'");
-                        if (InvoiceDistinctCategoryTaxDetails.size() > 0) {
-                            for (int ct = 0; ct < InvoiceDistinctCategoryTaxDetails.size(); ct++) {
-                                JSONObject currentCategoryTaxRow = InvoiceDistinctCategoryTaxDetails.get(ct);
-                                String categoryTaxName = (String) currentCategoryTaxRow.get("tax_name");
-                                InvoiceCategoryTaxDetails = sqlObj.executeRawqueryJSON("SELECT SUM(tax_value) AS totalTaxOnCategory FROM " + dbVar.CATEGORY_TAX_AMOUNT_TABLE + " WHERE invoice_id='" + printInvoiceId + "' AND " + dbVar.TAX_AMOUNT_NAME + "='" + ConstantsAndUtilities.addSlashes(categoryTaxName) + "'");
-
-                                String printTax = ConstantsAndUtilities.rightPadding((categoryTaxName), 35);
-
-                                String taxValueStr = ConstantsAndUtilities.leftPadding((String) InvoiceCategoryTaxDetails.get(0).get("totalTaxOnCategory"), 10);
-                                totalTaxValue = totalTaxValue + Double.parseDouble((String) InvoiceCategoryTaxDetails.get(0).get("totalTaxOnCategory"));
-                                taxCalculationStr += "<tr><td colspan=\"3\" align=\"left\">" + printTax + "</td><td align=\"right\">" + df.format(Double.valueOf((String) InvoiceCategoryTaxDetails.get(0).get("totalTaxOnCategory"))) + "&nbsp;" + currencyHtmlStr + "</td></tr>";
-
-                            }
-                        }
-                    }
-
-
-                }
-
-
-                if (InvoiceTaxDetails.size() > 0) {
-
-                    for (int k = 0; k < InvoiceTaxDetails.size(); k++) {
-                        JSONObject taxRow = InvoiceTaxDetails.get(k);
-                        String printTax = ConstantsAndUtilities.rightPadding((String) taxRow.get(dbVar.TAX_AMOUNT_NAME), 35);
-
-                        String taxValueStr = ConstantsAndUtilities.leftPadding((String) taxRow.get(dbVar.TAX_AMOUNT_VALUE), 10);
-                        totalTaxValue = totalTaxValue + Double.parseDouble((String) taxRow.get(dbVar.TAX_AMOUNT_VALUE));
-
-                        taxCalculationStr += "<tr><td colspan=\"3\" align=\"left\">" + printTax + "</td><td align=\"right\">" + taxValueStr + "&nbsp;" + currencyHtmlStr + "</td></tr>";
-                    }
-                }
-
-                String totalTaxStr = ConstantsAndUtilities.leftPadding((df.format(totalTaxValue)).toString(), 34);
-                taxCalculationStr += "<tr><td colspan=\"3\" align=\"left\"><b>Total Tax</b></td><td align=\"right\">" + totalTaxStr + "&nbsp;" + currencyHtmlStr + "</td></tr>";
-
-            }
-
-            Double grandTotalWithoutRoundOff = subTotal + totalTaxValue;
-            calculatedGrandTotal = (df.format(grandTotalWithoutRoundOff).toString());
-
-            modeOfPaymentString = "";
-            if (invoiceDetails.get(0).optString(dbVar.INVOICE_STATUS).equals("complete")) {
-                if (!(invoiceDetails.get(0).optString(dbVar.INVOICE_PAYMENT_TYPE)).equals("multiple")) {
-                    modeOfPaymentString = "<tr><td align=\"left\" colspan=\"2\" >" + invoiceDetails.get(0).optString(dbVar.INVOICE_PAYMENT_TYPE) + "</td><td align=\"right\" colspan=\"2\" >" + calculatedGrandTotal + "&nbsp;" + currencyHtmlStr + "</td></tr>";
-                } else {
-                    ArrayList<JSONObject> splitInvoiceDetails = sqlObj.executeRawqueryJSON("SELECT * FROM " + dbVar.SPLIT_INVOICE_TABLE + " WHERE invoice_id='" + (invoiceDetails.get(0).optString(dbVar.INVOICE_ID)) + "'");
-                    if (splitInvoiceDetails.size() > 0) {
-                        for (int jsi = 0; jsi < splitInvoiceDetails.size(); jsi++) {
-                            JSONObject splitInvoiceRow = splitInvoiceDetails.get(jsi);
-//                        amountToBeRevertedBack += Double.parseDouble(String.valueOf(  splitInvoiceRow.get(dbVar.SPLIT_AMOUNT) ));
-                            modeOfPaymentString += "<tr><td align=\"left\" colspan=\"2\" >" + splitInvoiceRow.get(dbVar.SPLIT_PAYMENT_TYPE) + "</td><td align=\"right\" colspan=\"2\" >" + (splitInvoiceRow.get(dbVar.SPLIT_AMOUNT)) + "&nbsp;" + currencyHtmlStr + "</td></tr>";
-                        }
-                    }
-                }
-            }
-            String roundOffStr = "";
-            String grandTotalStyle = "topandbottomborderStyle";
-            if (grandTotalWithoutRoundOff != (Double.parseDouble((String) invoiceDetails.get(0).get("total_amt")))) {
-                grandTotalStyle = "";
-                String roundOffAmtDisplay = df.format((Double.parseDouble((String) invoiceDetails.get(0).get("total_amt"))) - grandTotalWithoutRoundOff);
-                roundOffStr = "<tr><td align=\"left\" colspan=\"2\" ><b>RoundOff</b></td><td align=\"right\" class=\"\" colspan=\"2\" ><b>" + roundOffAmtDisplay + "&nbsp;&#8377</b></td></tr><tr ><td align=\"left\" colspan=\"2\" class=\"topandbottomborderStyle totalAmtWithRoundoff\" ><b>Total Amount</b></td><td align=\"right\" colspan=\"2\" class=\"topandbottomborderStyle totalAmtWithRoundoff\" ><b>" + (invoiceDetails.get(0).get("total_amt")) + "&nbsp;" + currencyHtmlStr + "</b></td></tr>";
-            }
-
-            String totalCalculationStr = "<tr><td colspan=\"4\" style=\"border-top:dotted 2px solid;\">&nbsp;</td> <!--  for blank row --></tr><tr><td align=\"left\" colspan=\"2\" ><b>Sub Total</b></td><td align=\"right\" colspan=\"2\" style=\"white-space:nowrap;\"><b>" + ((df.format(subTotal)).toString()) + "&nbsp;" + currencyHtmlStr + "</b></td></tr>" + taxCalculationStr + modeOfPaymentString + "<tr><td align=\"left\" colspan=\"2\" style=\"padding-top:5px; padding-bottom:5px;\" class=\"" + grandTotalStyle + " grandTotalTag\" ><b>Grand Total</b></td><td align=\"right\" colspan=\"2\"  style=\"padding-top:5px; padding-bottom:5px;\" class=\"" + grandTotalStyle + " grandTotalTag\" ><b>" + calculatedGrandTotal + "&nbsp;" + currencyHtmlStr + "</b></td></tr>" + roundOffStr + "<tr><td colspan=\"4\">&nbsp;</td> <!--  for blank row --></tr>";
-            String inclusiveTaxesContent = "";
-            inclusiveTaxesContent = prepareInclusiveTaxsHTML();
-
-            String cardTransactionDetails = "";
-            CardPaymentProcessingMaster cppm = new CardPaymentProcessingMaster();
-            cardTransactionDetails = cppm.allCardTransactionDetailsForInvoice(printInvoiceId); // printInvoiceId
-
-            String vouchersAppliedOnInvoice = "";//returnVouchersAppliedOnInvoicePrintString(printInvoiceId);
-            billContent = billContent + itemsListStr + totalCalculationStr + cardTransactionDetails + inclusiveTaxesContent + vouchersAppliedOnInvoice;
-
-            if (totalDiscountGivenOnSubtotal != 0) {
-                billContent += "<tr class=\"totalDiscountAvailedRow\"><td colspan=\"3\" align=\"center\"><b>Total Discount Availed On Sub Total</td><td align=\"right\"><b>" + (df.format(totalDiscountGivenOnSubtotal)) + "&nbsp;" + currencyHtmlStr + "</b></td></tr>";
-
-            }
-            if (hasMRPforAllItems == true && totalSavingsOnMrp != 0) {
-                billContent += "<tr class=\"totalSavingsOnMRPRow\"><td colspan=\"3\" align=\"center\"><b>Total Savings On MRP </td><td align=\"right\"><b>" + (df.format(totalSavingsOnMrp)) + "&nbsp;" + currencyHtmlStr + "</b></td></tr>";
-
-            }
-
-            printString = "<html>" + headTagContent + "<body class=\"invoiceBody androidDeviceInvoiceBody\"><table id=\"page\"  style=\"float:left;\" cellspacing=\"0\" cellpadding=\"2\"  width=\"100%\" align=\"center\" border=\"0\">" + billContent + "<tr><td colspan=\"4\">" + footerEmpty + "</td></tr></table><script language=\"javascript\">" + heightFunction + " window.onload = function() { returnHeight(); };</script></body></html>";
-            clearAllTaxContent();
-            printInvoiceOrKOT = "Invoice";
-            saveToPrintingQueue("",printString,printInvoiceId,contentObj,"general",printerName);
-            printInvoiceOrKOT = "KOT";
-            try {
-                JSONObject orderDetails = (JSONObject) contentObj.get("orderdetails");
-
-                String gTotal = (orderDetails != null && orderDetails.has("grandTotal")) ? ((String) orderDetails.get("grandTotal")) : "";
-                JSONObject allTaxes = (orderDetails != null && orderDetails.has("allTaxes")) ? (JSONObject) orderDetails.get("allTaxes") : (new JSONObject());
-            } catch (JSONException exp) {
-                exp.printStackTrace();
+        }
+        try {
+            if (contentObj.get("content_type").equals("reprintinvoice")) {
+                headlines = "Reprinted Invoice <br />" + headlines;
             }
         }catch (Exception exp){
             exp.printStackTrace();
         }
+
+        String orderRefNum = "";
+        ArrayList<JSONObject> invoiceDetails = sqlObj.executeRawqueryJSON("SELECT * FROM invoice_total_table WHERE invoice_id='"+printInvoiceId+"'");
+        String storeName="",storeAddress="",storePhoneNum="",orderTypeString="";
+        String customerId = "";
+        if(invoiceDetails.size()==1){
+            customerId = (String) invoiceDetails.get(0).optString(dbVar.INVOICE_CUSTOMER);
+            orderRefNum = (String) invoiceDetails.get(0).optString(dbVar.INVOICE_HOLD_ID);
+            if(!orderRefNum.equals("")){ orderRefNum = "<tr><td align=\"center\"  id=\"kotOrderRefNum\" colspan=\"4\" style=\"font-size:22px\">ORDER REF. NO# "+ orderRefNum+" </td></tr>";}
+            String storeIdForInvoice = (String) invoiceDetails.get(0).optString(dbVar.STORE_ID);
+            if(!storeIdForInvoice.equals("")){
+                ArrayList<JSONObject> storeDetails = sqlObj.executeRawqueryJSON("SELECT * FROM "+ dbVar.STORE_TABLE + " WHERE store_id='" + storeIdForInvoice + "'");
+                if(storeDetails.size()==1){
+                    storeName = (String) storeDetails.get(0).optString(dbVar.STORE_NAME);
+                    storeAddress = storeDetails.get(0).optString(dbVar.STORE_STREET)+",\n"+storeDetails.get(0).optString(dbVar.STORE_CITY)+"-"+storeDetails.get(0).optString(dbVar.STORE_POSTAL);
+                    storePhoneNum = (!storeDetails.get(0).optString(dbVar.STORE_NUMBER).equals("")) ? ("<tr><td align=\"center\" colspan=\"4\" style=\"font-size:22px\">Phone No# "+ storeDetails.get(0).optString(dbVar.STORE_NUMBER) +" </td></tr>") : "";
+                }
+            }
+
+            orderTypeString = orderTypeName((String) invoiceDetails.get(0).optString(dbVar.ORDER_TYPE));
+        }
+        ArrayList<JSONObject> invoiceItemDetails = sqlObj.executeRawqueryJSON("SELECT * FROM invoice_items_table WHERE invoice_id='"+printInvoiceId+"'");
+        ArrayList<JSONObject> invoiceItemCountDetails = sqlObj.executeRawqueryJSON("SELECT SUM(item_quantity) as totalQuantity FROM invoice_items_table WHERE invoice_id='"+printInvoiceId+"'");
+        String customerCopyString = "";
+        printInfoObj = contentObj;
+        if(printInfoObj.optString("content_type").equals("printpreview")){
+            customerCopyString = "<tr><td colspan=\"4\" style=\"text-align:center;\"><span class=\"tablehead\">Customer Copy</span></td></tr>";
+        }
+        if(printInfoObj.optString("content_type").equals("duplicatecustomercopy")){
+            customerCopyString = "<tr><td colspan=\"4\" style=\"text-align:center;\"><span class=\"tablehead\">Duplicate Bill</span></td></tr>";
+        }
+        String totalQuantityOfItems = (String) invoiceItemCountDetails.get(0).optString("totalQuantity");
+        String currencyHtmlStr = MainActivity.currencyTypehtml;
+        String customerDisplayString = "";
+        if(!customerId.equals(""))
+        {
+            CustomersManager cm = new CustomersManager();
+            JSONObject customerInfoForId = cm.customerInfoForId(customerId);
+            customerDisplayString = "<tr class=\"customerInfoRow\"><td class=\"topborderStyle\" colspan=\"2\">Customer Name : "+(customerInfoForId.optString("customer_name"))+"</td><td  class=\"topborderStyle\"  colspan=\"2\">Phone : "+(customerInfoForId.optString("phone_number"))+"</td></tr>";
+            if(!customerInfoForId.optString("company_name").equals("") && !customerInfoForId.optString("company_tin").equals("")) {
+                customerDisplayString += "<tr class=\"customerInfoRow\"><td colspan=\"2\">Customer Company : " + (customerInfoForId.optString("company_name")) + "</td><td colspan=\"2\">Company TIN : " + (customerInfoForId.optString("company_tin")) + "</td></tr>";
+            }
+            customerDisplayString += "<tr class=\"customerInfoRow\" ><td class=\"bottomborderStyle\" colspan=\"2\">Account Balance : "+(customerInfoForId.optString("account_balance"))+"&nbsp;"+ (currencyHtmlStr) +"</td><td  class=\"bottomborderStyle\" colspan=\"2\">Customer ID : "+(customerInfoForId.optString("customer_id"))+"</td></tr>";
+            customerDisplayString += "<tr class=\"customerInfoRow\" ><td class=\"bottomborderStyle\" colspan=\"4\">Available Reward Points : "+(cm.rewardPointsOfCustomer(customerId))+"</td></tr>";
+
+        }
+
+        String billContent = customerCopyString+"<tr> <th align=\"center\" colspan=\"4\"><span class=\"tablehead\">"+headlines+"</span></th></tr><tr class=\"storeNameRow\"><td align=\"center\" colspan=\"4\" style=\"font-size:22px;font-weight:bold;\">"+storeName+"</td></tr><tr><td align=\"left\" colspan=\"4\" style=\"text-align:center; font-size:22px; font-weight:bold;\">INVOICE# "+printInvoiceId+"</td></tr>"+tokenNoStr+orderRefNum+"";
+        billContent += "<tr><td align=\"center\" colspan=\"4\" style=\"font-size:22px\">"+storeAddress+"</td></tr>"+storePhoneNum+"<tr><td align=\"left\"  colspan=\"4\" style=\"font-size:22px\">DATE/TIME:  "+ (ConstantsAndUtilities.currentTimeDayMonthFormat())+" </td></tr><tr class=\"cashierTagRow\"><td align=\"left\"  colspan=\"2\" style=\"font-size:22px\">CASHIER: "+(invoiceDetails.get(0).optString(dbVar.INVOICE_EMPLOYEE))+" </td><td align=\"right\"  colspan=\"2\" style=\"font-size:22px\">Order Type: "+orderTypeString+" </td></tr>"+customerDisplayString+"<tr><td align=\"left\"  colspan=\"2\" style=\"font-size:22px;padding-bottom:12px;\">Item Count: "+ (invoiceItemDetails.size())+" </td><td align=\"right\"  colspan=\"2\" style=\"font-size:22px;padding-bottom:12px;\">Total Qty: "+df.format(Double.parseDouble(totalQuantityOfItems))+" </td></tr>";
+
+        String itemsListStr ="<tr style=\"border-bottom:2px solid #000000;\"><td align=\"left\" style=\"font-size:22px\" class=\"topandbottomborderStyle\">Qty</td><td class=\"topandbottomborderStyle\">Item</td><td class=\"topandbottomborderStyle\" align=\"right\">Unit Price</td><td align=\"right\" class=\"topandbottomborderStyle\">Amount</td></tr> ";
+        //= "<tr valign='top'><td align=\"left\">1 </td> <td> Biryani Rice</td><td align=\"right\"><span style=\"white-space:nowrap;\">110.00 &#8377</span> </td><td align=\"right\"><span style=\"white-space:nowrap;\"> 110.00 &#8377</span></td></tr><tr valign='top'><td align=\"left\">1 </td> <td> Biryani Rice Full</td><td align=\"right\"><span style=\"white-space:nowrap;\">150.00 &#8377</span> </td><td align=\"right\"><span style=\"white-space:nowrap;\"> 150.00 &#8377</span></td></tr>";
+        Double subTotal = 0.0d;
+        Double totalBottleRefundValue = 0.0d;
+        if(invoiceItemDetails.size()>0){
+            for(int p=0;p<invoiceItemDetails.size();p++){
+                String quantityString= (String) invoiceItemDetails.get(p).optString(dbVar.INVOICE_QUANTITY);
+                String itemName= (String) invoiceItemDetails.get(p).optString(dbVar.INVOICE_ITEM_NAME);
+                String totalPrice= (String) invoiceItemDetails.get(p).optString(dbVar.INVOICE_YOUR_COST);
+                Double discountGivenOnItem = 0.0d;
+                if( !((String) invoiceItemDetails.get(p).optString(dbVar.INVOICE_DISCOUNT)).equals(""))
+                {
+                    discountGivenOnItem = Double.parseDouble((String) invoiceItemDetails.get(p).optString(dbVar.INVOICE_DISCOUNT));
+                    totalDiscountGivenOnSubtotal += discountGivenOnItem;
+                }
+                Double unitPrice = (Double.parseDouble(totalPrice)) / (Double.parseDouble(quantityString));
+                Double qtyPurchased = (Double.parseDouble(quantityString));
+                String units="";
+                String hasBottleDeposit = "no";
+                Double bottleRefundValuePerUnit = 0.0d;
+                ArrayList<JSONObject> optionalInfoDetails = sqlObj.executeRawqueryJSON("SELECT * FROM "+ dbVar.OPTIONAL_INFO_TABLE + " WHERE "+dbVar.INVENTORY_ITEM_NO+"='" + invoiceItemDetails.get(p).optString(dbVar.INVOICE_ITEM_ID)+ "'");
+                ArrayList<JSONObject> inventoryInfoDetails = sqlObj.executeRawqueryJSON("SELECT * FROM "+ dbVar.INVENTORY_TABLE + " WHERE "+dbVar.INVENTORY_ITEM_NO+"='" + invoiceItemDetails.get(p).optString(dbVar.INVOICE_ITEM_ID)+ "'");
+                if(optionalInfoDetails.size()==1){ units = (String) optionalInfoDetails.get(0).optString(dbVar.UNIT_TYPE);
+                    try{ hasBottleDeposit = (String) optionalInfoDetails.get(0).optString("has_bottle_deposit"); bottleRefundValuePerUnit = Double.parseDouble( String.valueOf(optionalInfoDetails.get(0).get("bottle_deposit_value"))); }catch (Exception exp){ exp.printStackTrace(); } }
+                if(!units.equals("")){                    quantityString += " "+units; }
+                Boolean itemShouldDisplayMRP = false;
+                Boolean itemShouldDisplayBottleRefund = true;
+                Double mrp = 0.0d;
+                try{
+                    String mrpString = (String)optionalInfoDetails.get(0).get(dbVar.INVENTORY_MRP);
+
+                    mrp = Double.parseDouble(!mrpString.equals("") ? mrpString : "0.00");
+
+                }catch(Exception ex)
+                {
+                    ex.printStackTrace();
+                }
+                if((mrp == 0) || mrp < unitPrice)
+                {
+                    hasMRPforAllItems = false;
+                }else{
+                    itemShouldDisplayMRP = true;
+                    totalSavingsOnMrp += (mrp * (qtyPurchased)) - (Double.parseDouble(totalPrice));
+                }
+
+                String serviceEmployeeId = "";
+                serviceEmployeeId = serviceEmployeeForUniqueId((String) invoiceItemDetails.get(p).optString(dbVar.UNIQUE_ID));
+                itemName += serviceEmployeeId;
+                itemsListStr += "<tr class=\"billItemsRow\" valign='top'><td align=\"left\" style=\"font-size:22px\">"+quantityString+"</td>";
+                itemsListStr +="<td>"+itemName+"</td><td align=\"right\"><span style=\"white-space:nowrap;\">"+ currencyHtmlStr +"&nbsp;"+ (df.format(unitPrice).toString()) +"</span></td><td align=\"right\"><span style=\"white-space:nowrap;\">"+ currencyHtmlStr  +"&nbsp;"+ (nf.format(Double.parseDouble(totalPrice.toString())))+"</span></td></tr>";
+
+                if(hasBottleDeposit.equals("yes") && bottleRefundValuePerUnit!=0)
+                {
+                    totalBottleRefundValue += bottleRefundValuePerUnit * qtyPurchased;
+                    itemsListStr +="<tr class=\"bottleRefundableAmountOfItemRow\"><td>&nbsp;</td><td>Refundable Deposit</td><td align=\"right\">"+currencyHtmlStr+"&nbsp;"+(nf.format(bottleRefundValuePerUnit))+"</td><td align=\"right\">"+ currencyHtmlStr+"&nbsp;"+ (nf.format(bottleRefundValuePerUnit * qtyPurchased)) +"</td></tr>";
+                }
+                if(discountGivenOnItem!=0)
+                {
+                    itemsListStr +="<tr class=\"totalDiscountGivenOnItemRow\"><td>&nbsp;</td><td colspan=\"2\">Total Discount Given <span style=\"white-space:nowrap;\">"+(nf.format(discountGivenOnItem))+"&nbsp;"+currencyHtmlStr+"</span></td><td>&nbsp;</td></tr>";
+                    itemsListStr +="<tr class=\"actualPriceOfItemRow\"><td>&nbsp;</td><td colspan=\"2\">Total Selling Price <span style=\"white-space:nowrap;\">"+(nf.format(discountGivenOnItem + (Double.parseDouble((String) totalPrice))))+"&nbsp;"+currencyHtmlStr+"</span></td><td>&nbsp;</td></tr>";
+
+                }
+                if(itemShouldDisplayMRP==true)
+                {
+                    // itemsListStr +="<tr class=\"mrpPriceOfItemRow\"><td>&nbsp;</td><td colspan=\"2\">MRP <span style=\"white-space:nowrap;\">"+(df.format((mrp)))+"&nbsp;"+currencyHtmlStr+"</span></td><td>&nbsp;</td></tr>";
+                }
+                String taxStr = "";
+                if(inventoryInfoDetails.size()==1)
+                {
+                    JSONObject inventoryInfo = inventoryInfoDetails.get(0);
+                    taxStr = (String) inventoryInfo.optString(dbVar.INVENTORY_TAXONE);
+                }
+                if(!taxStr.equals(""))
+                {
+                    String itemInclusiveTax = itemwiseTaxCalc(taxStr,Double.parseDouble(totalPrice));
+                    String gstStr = "<td>&nbsp;</td><td colspan=\"3\">"+itemInclusiveTax+"</td></tr>";
+                    itemsListStr += gstStr;
+                }
+                subTotal += (Double.parseDouble(totalPrice));
+            }
+        }
+
+        ArrayList<JSONObject> InvoiceTaxDetails = sqlObj.executeRawqueryJSON("SELECT * FROM "+ dbVar.TAX_AMOUNT_TABLE + " WHERE invoice_id='" + printInvoiceId + "'");
+        ArrayList<JSONObject> InvoiceCategoryTaxDetails = sqlObj.executeRawqueryJSON("SELECT * FROM "+ dbVar.CATEGORY_TAX_AMOUNT_TABLE + " WHERE invoice_id='" + printInvoiceId + "'");
+
+        ArrayList<JSONObject> NumberOfCategoriesInvoiceCategoryTaxDetails = sqlObj.executeRawqueryJSON("SELECT DISTINCT("+dbVar.CAT_TAX_CAT_ID+") FROM "+ dbVar.CATEGORY_TAX_AMOUNT_TABLE + " WHERE invoice_id='" + printInvoiceId + "'");
+        String taxCalculationStr = "",modeOfPaymentString="",calculatedGrandTotal="";
+        Boolean showOnlyDistinctTaxes = true;
+        Double totalTaxValue = 0.0d;
+        if(InvoiceCategoryTaxDetails.size()>0 || InvoiceTaxDetails.size()>0){
+            taxCalculationStr += "<tr class=\"taxesSubHeadingRow\"><td colspan=\"4\" align=\"left\">Taxes:</td></tr>";
+            if(NumberOfCategoriesInvoiceCategoryTaxDetails.size()>1){ showOnlyDistinctTaxes = true;}
+
+            if(InvoiceCategoryTaxDetails.size()>0){
+                if(showOnlyDistinctTaxes==false)
+                {
+                    for(int k=0;k<InvoiceCategoryTaxDetails.size();k++){
+                        JSONObject taxRow = InvoiceCategoryTaxDetails.get(k);
+                        String printTax = ConstantsAndUtilities.rightPadding((taxRow.optString(dbVar.TAX_AMOUNT_NAME))+" ON "+(taxRow.optString(dbVar.CategoryId)),35);
+
+                        String taxValueStr = nf.format(Double.parseDouble(String.valueOf( taxRow.opt(dbVar.TAX_AMOUNT_VALUE))));
+                        totalTaxValue = totalTaxValue + Double.parseDouble((String) taxRow.opt(dbVar.TAX_AMOUNT_VALUE));
+                        taxCalculationStr += "<tr><td colspan=\"3\" align=\"left\">"+printTax + "</td><td align=\"right\">"+currencyHtmlStr+"&nbsp;"+ taxValueStr +"</td></tr>";
+                    }
+                }else{InvoiceCategoryTaxDetails = sqlObj.executeRawqueryJSON("SELECT * FROM "+ dbVar.CATEGORY_TAX_AMOUNT_TABLE + " WHERE invoice_id='" + printInvoiceId + "'");
+                    ArrayList<JSONObject> InvoiceDistinctCategoryTaxDetails = sqlObj.executeRawqueryJSON("SELECT DISTINCT("+dbVar.TAX_AMOUNT_NAME+") FROM "+ dbVar.CATEGORY_TAX_AMOUNT_TABLE + " WHERE invoice_id='" + printInvoiceId + "'");
+                    if(InvoiceDistinctCategoryTaxDetails.size()>0)
+                    {
+                        for(int ct=0;ct<InvoiceDistinctCategoryTaxDetails.size();ct++)
+                        {
+                            JSONObject currentCategoryTaxRow = InvoiceDistinctCategoryTaxDetails.get(ct);
+                            String categoryTaxName = (String) currentCategoryTaxRow.opt("tax_name");
+                            InvoiceCategoryTaxDetails = sqlObj.executeRawqueryJSON("SELECT SUM(tax_value) AS totalTaxOnCategory FROM "+ dbVar.CATEGORY_TAX_AMOUNT_TABLE + " WHERE invoice_id='" + printInvoiceId + "' AND "+dbVar.TAX_AMOUNT_NAME+"='"+ dbVar.addSlashes(categoryTaxName)+"'");
+
+                            String printTax = ConstantsAndUtilities.rightPadding((categoryTaxName),35);
+
+                            String taxValueStr = ConstantsAndUtilities.leftPadding((String) InvoiceCategoryTaxDetails.get(0).optString("totalTaxOnCategory"),10);
+                            totalTaxValue = totalTaxValue + Double.parseDouble((String) InvoiceCategoryTaxDetails.get(0).opt("totalTaxOnCategory"));
+                            taxCalculationStr += "<tr><td colspan=\"3\" align=\"left\">"+printTax + "</td><td align=\"right\">"+ currencyHtmlStr +"&nbsp;"+ nf.format(Double.valueOf((String) InvoiceCategoryTaxDetails.get(0).opt("totalTaxOnCategory")))+"</td></tr>";
+
+                        }
+                    }
+                }
+
+
+            }
+
+
+            if(InvoiceTaxDetails.size()>0){
+
+                for(int k=0;k<InvoiceTaxDetails.size();k++){
+                    JSONObject taxRow = InvoiceTaxDetails.get(k);
+                    String printTax = ConstantsAndUtilities.rightPadding((String) taxRow.opt(dbVar.TAX_AMOUNT_NAME),35);
+
+                    String taxValueStr = nf.format(Double.parseDouble(String.valueOf( taxRow.opt(dbVar.TAX_AMOUNT_VALUE))));
+                    totalTaxValue = totalTaxValue + Double.parseDouble((String) taxRow.opt(dbVar.TAX_AMOUNT_VALUE));
+
+                    taxCalculationStr += "<tr><td colspan=\"3\" align=\"left\">"+printTax + "</td><td align=\"right\">"+currencyHtmlStr+"&nbsp;"+taxValueStr+"</td></tr>";
+                }
+            }
+
+            String totalTaxStr = ConstantsAndUtilities.leftPadding((nf.format(totalTaxValue)).toString(),34);
+            taxCalculationStr += "<tr class=\"totalExclusiveTaxesRow\"><td colspan=\"3\" align=\"left\"><b>Total Tax</b></td><td align=\"right\">"+currencyHtmlStr+"&nbsp;"+totalTaxStr+"</td></tr>";
+
+        }
+
+        Double grandTotalWithoutRoundOff = subTotal + totalTaxValue + totalBottleRefundValue;
+        calculatedGrandTotal = (nf.format(grandTotalWithoutRoundOff).toString());
+
+        modeOfPaymentString ="";
+        if(invoiceDetails.get(0).opt(dbVar.INVOICE_STATUS).equals("complete")){
+            if(!(invoiceDetails.get(0).opt(dbVar.INVOICE_PAYMENT_TYPE)).equals("multiple")) {
+                modeOfPaymentString = "<tr><td align=\"left\" colspan=\"2\" >" + invoiceDetails.get(0).opt(dbVar.INVOICE_PAYMENT_TYPE) + "</td><td align=\"right\" colspan=\"2\" >" + currencyHtmlStr + "&nbsp;" + calculatedGrandTotal + "</td></tr>";
+            }else{
+                ArrayList<JSONObject> splitInvoiceDetails = sqlObj.executeRawqueryJSON("SELECT * FROM " + dbVar.SPLIT_INVOICE_TABLE + " WHERE invoice_id='" + (invoiceDetails.get(0).opt(dbVar.INVOICE_ID)) + "'");
+                if(splitInvoiceDetails.size()>0)
+                {
+                    for(int jsi=0; jsi< splitInvoiceDetails.size();jsi++)
+                    {
+                        JSONObject splitInvoiceRow = splitInvoiceDetails.get(jsi);
+//                        amountToBeRevertedBack += Double.parseDouble(String.valueOf(  splitInvoiceRow.get(dbVar.SPLIT_AMOUNT) ));
+                        modeOfPaymentString += "<tr><td align=\"left\" colspan=\"2\" >" + splitInvoiceRow.opt(dbVar.SPLIT_PAYMENT_TYPE) + "</td><td align=\"right\" colspan=\"2\" >" + currencyHtmlStr + "&nbsp;" + nf.format(Double.parseDouble(String.valueOf((splitInvoiceRow.opt(dbVar.SPLIT_AMOUNT)))))  + "</td></tr>";
+                    }
+                }
+            }
+        }
+        modeOfPaymentString += tenderedChangeForInvoiceID(printInvoiceId);
+        String roundOffStr = "";
+        String grandTotalStyle = "topandbottomborderStyle";
+        if (grandTotalWithoutRoundOff != (Double.parseDouble((String) invoiceDetails.get(0).opt("total_amt"))) && (prefs.getBoolean("roundOff", false)))
+        {
+            grandTotalStyle = "";
+            String roundOffAmtDisplay = df.format( (Double.parseDouble((String) invoiceDetails.get(0).opt("total_amt"))) - grandTotalWithoutRoundOff );
+            roundOffStr = "<tr><td align=\"left\" colspan=\"2\" ><b>RoundOff</b></td><td align=\"right\" class=\"\" colspan=\"2\" ><b>"+currencyHtmlStr+"&nbsp;"+roundOffAmtDisplay +"</b></td></tr><tr ><td align=\"left\" colspan=\"2\" class=\"topandbottomborderStyle totalAmtWithRoundoff\" ><b>Total Amount</b></td><td align=\"right\" colspan=\"2\" class=\"topandbottomborderStyle totalAmtWithRoundoff\" ><b>"+currencyHtmlStr+"&nbsp;"+(nf.format(Double.parseDouble(String.valueOf(invoiceDetails.get(0).opt("total_amt")))))+"</b></td></tr>";
+        }
+
+        String totalCalculationStr = "<tr><td colspan=\"4\" style=\"border-top:dotted 2px solid;\">&nbsp;</td> <!--  for blank row --></tr><tr><td align=\"left\" colspan=\"2\" ><b>Sub Total</b></td><td align=\"right\" colspan=\"2\" style=\"white-space:nowrap;\"><b>"+ currencyHtmlStr+"&nbsp;"+ ((nf.format(subTotal + totalBottleRefundValue)).toString()) +"</b></td></tr>"+taxCalculationStr+modeOfPaymentString+"<tr><td align=\"left\" colspan=\"2\" style=\"padding-top:5px; padding-bottom:5px;\" class=\""+grandTotalStyle+" grandTotalTag\" ><b>Grand Total</b></td><td align=\"right\" colspan=\"2\"  style=\"padding-top:5px; padding-bottom:5px;\" class=\""+grandTotalStyle+" grandTotalTag\" ><b>"+currencyHtmlStr+"&nbsp;"+calculatedGrandTotal+"</b></td></tr>"+roundOffStr+"<tr><td colspan=\"4\">&nbsp;</td> <!--  for blank row --></tr>";
+        String inclusiveTaxesContent = "";
+        inclusiveTaxesContent = prepareInclusiveTaxsHTML();
+        String cardTransactionDetails = "";
+        CardPaymentProcessingMaster cppm = new CardPaymentProcessingMaster();
+        cardTransactionDetails = cppm.allCardTransactionDetailsForInvoice(printInvoiceId); // printInvoiceId
+        String vouchersAppliedOnInvoice = returnVouchersAppliedOnInvoicePrintString(printInvoiceId);
+        billContent = billContent + itemsListStr + totalCalculationStr + cardTransactionDetails + inclusiveTaxesContent + vouchersAppliedOnInvoice;
+
+        if(totalDiscountGivenOnSubtotal!=0)
+        {
+            billContent += "<tr class=\"totalDiscountAvailedRow\"><td colspan=\"3\" align=\"center\"><b>Total Discount Availed On Sub Total</td><td align=\"right\"><b>"+ (df.format(totalDiscountGivenOnSubtotal)) +"&nbsp;"+currencyHtmlStr+"</b></td></tr>";
+
+        }
+        if(hasMRPforAllItems==true && totalSavingsOnMrp!=0)
+        {
+            billContent += "<tr class=\"totalSavingsOnMRPRow\"><td colspan=\"3\" align=\"center\"><b>Total Savings On MRP </td><td align=\"right\"><b>"+ (df.format(totalSavingsOnMrp)) +"&nbsp;"+currencyHtmlStr+"</b></td></tr>";
+
+        }
+        if(totalBottleRefundValue!=0)
+        {
+            billContent += "<tr class=\"totalBottleRefundValueRow\"><td colspan=\"3\" align=\"center\"><b>Total Refundable Deposit </td><td align=\"right\"><b>"+ currencyHtmlStr+ "&nbsp;"+ (nf.format(totalBottleRefundValue))+"</b></td></tr>";
+
+        }
+
+        footerEmpty += "<p><br /><br /></p>";
+        printString = "<html>" + headTagContent + "<body class=\"invoiceBody androidDeviceInvoiceBody\"><table id=\"page\"  style=\"float:left;\" cellspacing=\"0\" cellpadding=\"2\"  width=\"100%\" align=\"center\" border=\"0\">"+billContent+"<tr><td colspan=\"4\">"+footerEmpty+"</td></tr></table><script language=\"javascript\">" + heightFunction + " window.onload = function() { returnHeight(); };</script></body></html>";
+        clearAllTaxContent();
+
+        try{
+            JSONObject orderDetails = (JSONObject) contentObj.get("orderdetails");
+
+            String gTotal  = (orderDetails!=null && orderDetails.has("grandTotal")) ? ( (String) orderDetails.get("grandTotal")   ) : "";
+            JSONObject allTaxes = (orderDetails!=null &&  orderDetails.has("allTaxes")) ?  (JSONObject) orderDetails.get("allTaxes") : (new JSONObject());
+        }catch (JSONException exp){
+            exp.printStackTrace();
+        }
+
         System.out.println(printString);
         return printString;
 
+    }
+
+
+    private String returnVouchersAppliedOnInvoicePrintString(String printInvoiceId) {
+        String returnVouchersAppliedStr = "";
+        DecimalFormat df = new DecimalFormat("#.##");
+        ArrayList<JSONObject> returnVouchersApplied = MainActivity.mySqlObj.executeRawqueryJSON("SELECT * FROM "+dbVar.RETURN_VOUCHERS_TABLE+" WHERE redeemed_invoice_id='"+printInvoiceId+"'");
+        if(returnVouchersApplied.size()>0)
+        {
+            returnVouchersAppliedStr += "<tr><td colspan=\"4\">&nbsp;</td><tr>";
+            returnVouchersAppliedStr += "<tr><td style=\"border-bottom:thin solid #000;\" colspan=\"4\">Voucher Discounts Availed</td><tr>";
+            for(int j=0; j < returnVouchersApplied.size(); j++)
+            {
+                JSONObject returnVouchersAppliedRow = returnVouchersApplied.get(j);
+                String voucherId = (String) returnVouchersAppliedRow.opt(dbVar.RETURN_VOUCHER_ID);
+                String availedAmount = (String) returnVouchersAppliedRow.opt("total_amt");
+                returnVouchersAppliedStr += "<tr class=\"returnVoucherAvailedDetailsRow\"><td colspan=\"3\" align=\"left\">Return Voucher "+voucherId+"</td><td align=\"right\">"+(df.format(Double.parseDouble(availedAmount)))+"&nbsp;"+ConstantsAndUtilities.currencyTypehtml+"</td></tr>";
+            }
+
+            returnVouchersAppliedStr += "<tr><td colspan=\"4\">&nbsp;<br /></td><tr>";
+        }
+        return returnVouchersAppliedStr;
     }
 
 
@@ -1940,5 +1964,51 @@ public class POSWebPrinting {
 
     public void lastcustomerAccountPaymentPrint(String customerId) {
 
+    }
+
+    private String serviceEmployeeForUniqueId(String uniqueId) {
+        String serviceEmployeeId = "";
+
+        ArrayList<JSONObject> empServiceDetails = MainActivity.mySqlObj.executeRawqueryJSON("SELECT * FROM emp_service_history WHERE unique_id='"+uniqueId+"'");
+        if(empServiceDetails.size()>0)
+        {
+            serviceEmployeeId = "<br />Service Employee : <b>"+ (empServiceDetails.get(0).optString("service_employee_id"))+"</b>";;;
+        }
+        return serviceEmployeeId;
+    }
+
+
+    private String tenderedChangeForInvoiceID(String printInvoiceId) {
+        String tenderedChange = "";
+        MySQLJDBC sqlCrmObj = MainActivity.mySqlCrmObj;
+        ArrayList<JSONObject> printInfoDetails = sqlCrmObj.executeRawqueryJSON("SELECT * FROM invoice_print_history WHERE invoice_id='"+printInvoiceId+"' AND kot_or_invoice='invoice' AND printing_type=''");
+        if(printInfoDetails.size()==1)
+        {
+            JSONObject printRow = printInfoDetails.get(0);
+            String printObj = String.valueOf(printRow.opt("print_content"));
+            System.out.println("Print Obj is "+printObj);
+            String currencyHtmlStr = MainActivity.currencyTypehtml;
+
+            try {
+                JSONObject printInfoObj = printRow.optJSONObject("print_content");
+                if(printInfoObj.has("orderdetails"))
+                {
+                    JSONObject orderDetails = (JSONObject) printInfoObj.opt("orderdetails");
+                    if(orderDetails.has("changeTendered"))
+                    {
+                        NumberFormat nf = NumberFormat.getInstance();
+                        nf.setMinimumFractionDigits(2);
+                        nf.setMaximumFractionDigits(2);
+                        String givenChange = String.valueOf(orderDetails.opt("changeTendered"));
+                        String givenAmount = String.valueOf(    Double.parseDouble(String.valueOf(orderDetails.opt("grandTotal"))) + Double.parseDouble(String.valueOf(orderDetails.opt("changeTendered")))   );
+                        tenderedChange = "<tr class=\"totalGivenAmount\"><td align=\"left\" colspan=\"2\" >Given Amount</td><td align=\"right\" colspan=\"2\" >" + currencyHtmlStr + "&nbsp;" + nf.format(Double.parseDouble(String.valueOf((givenAmount))))  + "</td></tr>";
+                        tenderedChange += "<tr class=\"tenderedChange\"><td align=\"left\" colspan=\"2\" >Tendered Change</td><td align=\"right\" colspan=\"2\" >" + currencyHtmlStr + "&nbsp;" + nf.format(Double.parseDouble(String.valueOf((givenChange))))  + "</td></tr>";
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return tenderedChange;
     }
 }

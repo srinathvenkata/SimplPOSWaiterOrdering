@@ -49,7 +49,7 @@ public class ConstantsAndUtilities {
     public static String loggedinusertype="";
     public static String SP_LOGGEDINUSERTYPE= "posw_loggedinusertype",SP_LOGGEDINUSERID="posw_loggedinuserid",SP_LOGGEDINUSERPASS="posw_useridPass";
     public static String usertype = "employee",userid="",useridPass="";
-    public static  String currencyTypehtml = "&#8377;";
+    public static  String currencyTypehtml = "$";
 
 
     public static String BARCODE_LENGTH = "barcode_length";

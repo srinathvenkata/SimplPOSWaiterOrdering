@@ -8,18 +8,12 @@
     android:screenOrientation="portrait"
     android:id="@+id/posWebActivity"
     tools:context=".POSWebActivity">
-    <ScrollView
-        android:scrollbars="none"
-        android:fillViewport="true"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
 
         <WebView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:id="@+id/printwebView"
             tools:ignore="WebViewLayout" />
-    </ScrollView>
     <WebView
         android:id="@+id/pos_webview"
         android:layout_width="match_parent"

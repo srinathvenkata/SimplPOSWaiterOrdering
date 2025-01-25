@@ -380,7 +380,6 @@ public class MenuScreen extends FragmentActivity implements Runnable{
             public void goToHardware()
             {
                 /*CardPaymentProcessingMaster cpm = new CardPaymentProcessingMaster();
-                String detailsOfCardTransaction = cpm.allCardTransactionDetailsForInvoice("BTR0000011");
                 Log.v("details",detailsOfCardTransaction);
                 if(!detailsOfCardTransaction.equals("")){ return; }*/
                 String licenseKey = dbVar.getValueForAttribute(ConstantsAndUtilities.LICENSE_KEY);

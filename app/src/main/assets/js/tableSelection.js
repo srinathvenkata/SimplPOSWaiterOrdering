@@ -451,7 +451,9 @@ function hideLoadingPopupModal()
 
     try{
     AndroidInterface.printLog("Testing","Hide modal called");
+
     jQuery("#showLoadingModal").modal("hide");
+    AndroidInterface.stopLoadingDialog();
     }catch(Err)
     {
     bootbox.alert(Err.stack);

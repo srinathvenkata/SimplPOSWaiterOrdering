@@ -1,6 +1,7 @@
 package com.simplpos.waiterordering;
 
 import static android.os.Build.VERSION.SDK_INT;
+import static android.text.Layout.Alignment.ALIGN_CENTER;
 
 
 import androidx.fragment.app.FragmentActivity;
@@ -20,6 +21,12 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -31,10 +38,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.GeolocationPermissions;
 import android.webkit.JavascriptInterface;
 import android.webkit.SslErrorHandler;
@@ -50,6 +60,9 @@ import android.widget.Toast;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.TextHttpResponseHandler;
+import com.pax.poslink.peripheries.POSLinkPrinter;
+import com.pax.poslink.peripheries.ProcessResult;
+import com.pax.poslink.print.PrintBarcode;
 import com.simplpos.waiterordering.helpers.CardPaymentProcessingMaster;
 import com.simplpos.waiterordering.helpers.ConstantsAndUtilities;
 import com.simplpos.waiterordering.helpers.CustomersManager;
@@ -62,6 +75,7 @@ import com.simplpos.waiterordering.helpers.MyApplication;
 import com.simplpos.waiterordering.helpers.POSWebPrinting;
 import com.simplpos.waiterordering.helpers.SaveFetchVoidInvoice;
 import com.simplpos.waiterordering.helpers.ServerSync;
+import com.simplpos.waiterordering.helpers.StringUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -69,6 +83,8 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -82,7 +98,9 @@ import cz.msebera.android.httpclient.Header;
 public class POSWebActivity extends FragmentActivity {
 
     public DatabaseHelper dbHelper = null;
-    WebView webView;
+    WebView webView,printWebview;
+    public static int webViewHeight = 99;
+    public static int webViewWidth = 380;
     SharedPreferences preferences = null;//  PreferenceManager.getDefaultSharedPreferences(SplashScreen.this);
     DatabaseVariables dbVar = null;
     private ProgressDialog dialog;
@@ -113,6 +131,13 @@ public class POSWebActivity extends FragmentActivity {
     private static Context posContext = null;
     public static String ssid="";
     public static JSONObject assignmentOfPrinters = new JSONObject();
+
+    POSLinkPrinter posLinkPrinter;
+    public static boolean beingPrinted = false;
+    private static String htmlPrintData="";
+
+    private static Bitmap printingImage = null, mainPrintingBitmap = null;
+    private String printType = "imageprinting";
 
     public static void showAlertDialogForDatabaseDisconnectivity()
     {
@@ -193,9 +218,337 @@ public class POSWebActivity extends FragmentActivity {
         dbVar = new DatabaseVariables();
         posContext = POSWebActivity.this;
         isSavingInvoice = false;
+        declarePrintWebView();
+        setContentView(layout);
 
     }
 
+    private void declarePrintWebView(){
+        printWebview = null;
+        printWebview = findViewById(R.id.printwebView);
+
+
+        printWebview.addJavascriptInterface(new WebAppInterface(this), "AndroidInterface"); // To call methods in Android from using js in the html, AndroidInterface.showToast, AndroidInterface.getAndroidVersion etc
+        WebSettings printwebSettings = printWebview.getSettings();
+        printWebview.setVisibility(View.INVISIBLE);
+        printwebSettings.setJavaScriptEnabled(true);
+        printwebSettings.setDefaultTextEncodingName("utf-8");
+        printwebSettings.setDomStorageEnabled(true);
+//        printwebSettings.setAppCacheEnabled(false);
+        printWebview.setWebViewClient(new WebViewClient());
+        printWebview.setWebChromeClient(new WebChromeClient());
+
+        ViewGroup.LayoutParams params = printWebview.getLayoutParams();
+        params.width = webViewWidth;
+        params.height = webViewHeight;
+        printWebview.setLayoutParams(params);
+
+        printWebview.loadDataWithBaseURL(null,"<html><body><p>Welcome To SR POS</p></body></html>", "text/html", "UTF-8", null);
+
+        printWebview.setInitialScale(100);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            printWebview.enableSlowWholeDocumentDraw();
+        }
+        LoadWebViewWithString("<html><body><p>Welcome To SR POS</p></body></html>","none", "");
+        posLinkPrinter = POSLinkPrinter.getInstance(MyApplication.getAppContext());
+    }
+
+    public void LoadWebViewWithString(String data, final String invoiceorkot, String printerId)
+    {
+
+        createPrintDataDirectoryIfNotExists();
+
+        beingPrinted = true;
+        htmlPrintData = data;
+//        printWebview.loadData(htmlPrintData,"text/html; charset=utf-8", "utf-8");
+
+        printWebview.post(new Runnable() {
+            @Override
+            public void run() {
+                printWebview.loadDataWithBaseURL(null, htmlPrintData,"text/html; charset=utf-8", "utf-8", null);
+            }
+        });
+        try {
+            printWebview.post(new Runnable() {
+                @Override
+                public void run() {
+                    WebSettings printwebSettings = printWebview.getSettings();
+                    printwebSettings.setJavaScriptEnabled(true);
+                    printwebSettings.setDefaultTextEncodingName("utf-8");
+                    printwebSettings.setDomStorageEnabled(true);
+//                    printwebSettings.setAppCacheEnabled(false);
+//                    Log.v("Srinath","Load web view with string called and data is "+htmlPrintData);
+                    printWebview.loadDataWithBaseURL(null, htmlPrintData,"text/html; charset=utf-8", "utf-8", null);
+                }
+            });
+//            printWebview.loadData(data, "text/html", "UTF-8");
+        }catch (Exception exp){
+            Log.v("Srinath","Exception is "+exp.toString());
+        }
+        final Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                // yourMethod();
+                int currentWebviewHeight = printWebview.getContentHeight();
+                Log.v("Srinath","Current webview height is "+currentWebviewHeight
+                        + " And webview height is "+printWebview.getHeight());
+//                webView.setMinimumHeight(currentWebviewHeight);
+//                webView.setLayoutParams(new LinearLayout.LayoutParams(getResources().getDisplayMetrics().widthPixels, (int) (currentWebviewHeight * getResources().getDisplayMetrics().density)));
+//                webView.setLayoutParams(new LinearLayout.LayoutParams(getResources().getDisplayMetrics().widthPixels, (int) (webViewHeight * getResources().getDisplayMetrics().density)));
+                ViewGroup.LayoutParams params = printWebview.getLayoutParams();
+                params.width = webViewWidth;
+                params.height = currentWebviewHeight;
+                printWebview.setLayoutParams(params);
+
+//                printWebview.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+                final Handler handler1 = new Handler(Looper.getMainLooper());
+                handler1.postDelayed(new Runnable() {
+                    public void run() {
+                        int NEWHeight = printWebview.getContentHeight();
+                        Log.v("Srinath","CHANGED webview height is "+NEWHeight);
+
+                        FileOutputStream out = null;
+                        Bitmap printingImage = null;
+                        try {
+                            printWebview.setVisibility(View.VISIBLE);
+                            Log.v("Srinath","New height of printwebview is "+printWebview.getHeight()+" content height is "+printWebview.getContentHeight());
+//                            printWebview.setMinimumHeight(printWebview.getContentHeight());
+                            /*float scale = printWebview.getScale();
+                            int height = (int) (printWebview.getContentHeight());// * scale + 0.5);
+
+                            printingImage = Bitmap.createBitmap(printWebview.getWidth(), height, Bitmap.Config.ARGB_8888);
+                            Canvas canvas = new Canvas(printingImage);
+                            printWebview.draw(canvas);*/
+
+                            /*printingImage = Bitmap.createBitmap(printWebview.getWidth(), printWebview.getHeight(), Bitmap.Config.ARGB_8888);
+                            Canvas canvas = new Canvas(printingImage);
+                            printWebview.draw(canvas);*/
+                            mainPrintingBitmap = printingImage =   drawableToBitmap(getBitmapFromView(printWebview));
+                        }catch (Exception exp){
+                            Log.v("Srinath","Exception is here "+exp.toString());
+                            exp.printStackTrace();
+                        }
+//                        map1 = screenshot2(webView);
+
+                        try {
+                    /*out = new FileOutputStream(Environment.getExternalStorageDirectory()
+                            + "/webViewPrinting/"+"billFileWebView.png");*/
+                            String imageName = "billFileWebView";
+                            if(invoiceorkot.equals("invoice")){
+                                imageName = "billFileWebView";
+                            }
+                            else if(invoiceorkot.equals("kot")){
+                                imageName = "billFileWebViewKOT";
+                            } else if(invoiceorkot.equals("categoryKot")){
+
+                                imageName = "categoryReceiptWebViewKOT";
+                            }
+                            else if(invoiceorkot.equals("customeraccountpayment")){
+
+                                imageName = "billFileCustomerAccountPayment";
+                            }
+
+
+                            if (SDK_INT >= Build.VERSION_CODES.R) {
+                                out = new FileOutputStream(getApplicationContext().getFilesDir()
+                                        + "/printData/"+ imageName+ ".png");
+                            }else{
+                                out = new FileOutputStream(Environment.getExternalStorageDirectory()
+                                        + "/printData/"+ imageName+ ".png");
+                            }
+
+
+                            printingImage.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
+                            // PNG is a lossless format, the compression factor (100) is ignored
+                        } catch (Exception e) {
+                            Toast.makeText(MyApplication.getAppContext(), "1 Issue while saving image "+e.toString(), Toast.LENGTH_SHORT).show();
+                            e.printStackTrace();
+                            Log.v("Printing Error","2 "+e.getMessage());
+                        } finally {
+                            try {
+                                if (out != null) {
+                                    out.close();
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                Toast.makeText(MyApplication.getAppContext(), "2 Issue while saving image "+e.toString(), Toast.LENGTH_SHORT).show();
+                                e.printStackTrace();
+                                beingPrinted = false;
+                                Log.v("Printing Error","1 "+e.getMessage());
+                                return;
+                            }
+                        }
+
+
+
+                        ViewGroup.LayoutParams params = printWebview.getLayoutParams();
+//                        params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+//                        params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+//                        printWebview.setLayoutParams(params);
+                        {
+                            if(printType.equals("imageprinting")) {
+                                if(invoiceorkot.equals("invoice")) {
+                                    printBitmapImageForInvoice();
+                                }
+                                else if(invoiceorkot.equals("customeraccountpayment")){
+//                                    printBitmapImageForCustomerAccountPayment();
+                                }
+                            }
+                        }
+                        beingPrinted = false;
+//                        declarePrintWebView();
+
+                    }
+                }, 1000);
+
+            }
+        }, 1000);   //7 seconds
+    }
+
+    private void printBitmapImageForInvoice()
+    {
+
+            try {
+                File folder = null;
+
+                if (SDK_INT >= Build.VERSION_CODES.R) {
+                    folder = getApplicationContext().getFilesDir();
+
+                }else{
+                    folder =Environment.getExternalStorageDirectory();
+                }
+
+                String fileName = folder.getPath() + "/printData/"+"billFileWebView.png";
+
+                breakImagesAndPrintToESCPOSUSBGenericPrinter(fileName);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+    }
+
+    public static int imageBreakHeight = 3000;
+    private  void breakImagesAndPrintToESCPOSUSBGenericPrinter(String fileName)
+    {
+        Log.v("Printing",fileName+ " has to be printed");
+        {
+
+            try{
+
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inScaled = false;
+                Bitmap bitmap = BitmapFactory.decodeFile(fileName, options);
+
+
+                int billImgheight         = bitmap.getHeight() ;//githubBufferedImage.getHeight();
+                int billImgWidth = bitmap.getWidth();
+
+
+                // convert this githubBufferedImage to breakupImages by height
+
+                int remainingHeight = billImgheight;
+                int fromHeight = 0;
+                do{
+                    int heightToBeCut = (remainingHeight < imageBreakHeight) ? (remainingHeight) : (imageBreakHeight);
+
+                    //BufferedImage croppedImage = cropImage(githubBufferedImage,0,(  (fromHeight==0) ? (fromHeight) : (fromHeight+1) ),billImgWidth,heightToBeCut);
+
+                    Bitmap resizedBmp = Bitmap.createBitmap(bitmap, 0, ( (fromHeight==0) ? (fromHeight) : (fromHeight+1) ) ,billImgWidth,(heightToBeCut-1));
+
+//                    usbGenericPrinter.printImage(printingImage);
+
+                    printBitmapToPaxPrinter(resizedBmp);
+                    remainingHeight = remainingHeight - imageBreakHeight;
+                    fromHeight = fromHeight + heightToBeCut;// +1;
+
+                    if(remainingHeight>0)
+                    {
+                        wait(3000);
+                    }
+                }while(remainingHeight >0);
+//            escpos.writeLF("BitonalOrderedDither()");
+                // using ordered dither for dithering algorithm with default values
+
+            /* BarCode barcode = new BarCode();
+            escpos.writeLF("barcode UPCA system ");
+            barcode.setSystem(BarCode.BarCodeSystem.UPCA);
+            barcode.setHRIPosition(BarCode.BarCodeHRIPosition.BelowBarCode);
+            barcode.setBarCodeSize(2, 100);
+            escpos.feed(2);
+            escpos.write(barcode, "12345678901");
+            escpos.feed(3);
+            escpos.feed(5).cut(EscPos.CutMode.FULL);
+            */
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    Bitmap drawableToBitmap(Drawable drawable) {
+        if (drawable instanceof BitmapDrawable) {
+            return ((BitmapDrawable) drawable).getBitmap();
+        }
+
+        int width = drawable.getIntrinsicWidth();
+        width = width > 0 ? width : 1;
+        int height = drawable.getIntrinsicHeight();
+        height = height > 0 ? height : 1;
+        Log.v("Srinath","Printing height in drawable to bitmap is "+height);
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_4444);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), printWebview.getContentHeight());
+        drawable.draw(canvas);
+
+        return bitmap;
+    }
+    public Bitmap getBitmapFromWebView(WebView webView)
+    {
+        webView.measure(View.MeasureSpec.makeMeasureSpec(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED),View.MeasureSpec.makeMeasureSpec(0,View.MeasureSpec.UNSPECIFIED));
+        webView.layout(0,0,webViewWidth,webView.getContentHeight());
+        Log.v("Srinath","Bitmap Printing width is "+webViewWidth+" ,  height is "+ (webView.getHeight())+" , measured height is "+ (webView.getMeasuredHeight())+" content height is "+(webView.getContentHeight()));
+        Bitmap bitmap = Bitmap.createBitmap(webView.getMeasuredWidth(),webView.getContentHeight(),Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        webView.draw(canvas);
+        return bitmap;
+    }
+    public Drawable getBitmapFromView(View view) {
+
+        Bitmap returnedBitmap = Bitmap.createBitmap(webViewWidth,
+                printWebview.getContentHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(returnedBitmap);
+
+        Drawable bgDrawable = view.getBackground();
+        if (bgDrawable != null)
+            bgDrawable.draw(canvas);
+        else
+            canvas.drawColor(Color.WHITE);
+        view.draw(canvas);
+        Drawable d = new BitmapDrawable(getResources(), returnedBitmap);
+        return d;
+    }
+
+    private void createPrintDataDirectoryIfNotExists() {
+
+        String directoryName = "";
+        if (SDK_INT >= Build.VERSION_CODES.R) {
+            directoryName = (getApplicationContext().getFilesDir()
+                    + "/printData/");
+        }else{
+            directoryName = (Environment.getExternalStorageDirectory()
+                    + "/printData/");
+        }
+        File directory = new File(directoryName);
+        if (! directory.exists()){
+            directory.mkdir();
+            // If you require it to make the entire directory path including parents,
+            // use directory.mkdirs(); here instead.
+        }
+    }
     @Override
     public void onBackPressed() {
         return;
@@ -205,11 +558,18 @@ public class POSWebActivity extends FragmentActivity {
     public void onResume() {
 
         super.onResume();
+        try {
+            webView.loadUrl("javascript:hideLoadingPopupModal();");
+
+        }catch (Exception exp){
+            exp.printStackTrace();
+        }
     }
 
 
     private void initControls()
     {
+
 //        swipeRefreshLayout = findViewById(R.id.swiperefresh);
 //        progressBar = findViewById(R.id.pb);
         webView = findViewById(R.id.pos_webview);
@@ -716,6 +1076,15 @@ public class POSWebActivity extends FragmentActivity {
 
             clearCancellationReasons();
             Log.v("Console",parametersOfUser.toString());
+            Bitmap bmp = null;
+            try {
+                bmp = BitmapFactory.decodeResource(getResources(), R.drawable.headerlogo);
+
+            } catch (Exception e) {
+                Log.v("BitmapExp",e.getMessage());
+                Log.v("BitmapExp",e.toString());
+//                throw new RuntimeException(e);
+            }
             return parametersOfUser.toString();
         }
         @JavascriptInterface
@@ -2267,6 +2636,7 @@ public class POSWebActivity extends FragmentActivity {
                 @Override
                 public void run() {
                     CardPaymentProcessingMaster cpProcessing = new CardPaymentProcessingMaster();
+                    Log.v("transactionAmountInDollar",transactionAmountInDollar);
                     JSONObject paymentProcessingResult = cpProcessing.processPaymentInDollars(transactionAmountInDollar);
                     System.out.println("JSON response from payment processing is "+paymentProcessingResult.toString());
                     if(paymentProcessingResult.has("result_status"))
@@ -2378,6 +2748,83 @@ public class POSWebActivity extends FragmentActivity {
         }
     }
 
+    private void printBitmapToPaxPrinter(Bitmap bmp) {
+        posLinkPrinter.setPrintWidth(posLinkPrinter.getRecommendWidth());
+        int cutMode = POSLinkPrinter.CutMode.FULL_PAPER_CUT;
+        POSLinkPrinter.PrintDataFormatter printDataFormatter  = new POSLinkPrinter.PrintDataFormatter();;
+        POSLinkPrinter.PrintListener printListener = new POSLinkPrinter.PrintListener() {
+            @Override
+            public void onSuccess() {
+
+
+                dialog = new ProgressDialog(POSWebActivity.this);
+                dialog.show();
+                dialog.setContentView(R.layout.progress_dialog);
+                dialog.setCanceledOnTouchOutside(false);
+            }
+
+            @Override
+            public void onError(ProcessResult processResult) {
+                new Thread()
+                {
+                    public void run()
+                    {
+                        POSWebActivity.this.runOnUiThread(new Runnable()
+                        {
+                            public void run()
+                            {
+                                Toast.makeText(getApplicationContext(), processResult.getMessage(),Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                }.start();
+                if(dialog != null)
+                { dialog.dismiss(); }
+            }
+        };
+        printDataFormatter.clear();
+        printDataFormatter
+                .addHeader()
+                .addInvert().addSmallFont().addCenterAlign().addContent("invert")
+                .addLineSeparator()
+                .addInvert().addRightAlign().addContent("invert")
+                .addLineSeparator()
+                .addInvert().addContent("invert")
+                .addLineSeparator()
+                .addBarcode(PrintBarcode.BarCodeType.CODE39, 1, "12345678")
+                .addLineSeparator()
+                .addLeftAlign().addContent("left").addCenterAlign().addContent("center").addRightAlign().addNormalFont().addContent("right")
+                .addLineSeparator()
+                .addLeftAlign().addContent("left").addCenterAlign().addContent("center").addRightAlign().addNormalFont().addContent("right")
+                .addLineSeparator()
+                .addBarcode(PrintBarcode.BarCodeType.CODE128, 1, "56781234")
+                .addLineSeparator()
+                .addLeftAlign().addBigFont().addContent("left").addBigFont().addCenterAlign().addContent("center").addRightAlign().addBigFont().addContent("right")
+                .addLineSeparator()
+                .addLeftAlign().addBigFont().addContent("left").addBigFont().addCenterAlign().addContent("center").addRightAlign().addBigFont().addContent("right")
+                .addLineSeparator()
+                .addBarcode(PrintBarcode.BarCodeType.EAN13, 1, "123456789012")
+                .addLineSeparator()
+                .addLeftAlign().addSmallFont().addContent("left").addCenterAlign().addSmallFont().addContent("center").addSmallFont().addRightAlign().addContent("right")
+                .addLineSeparator()
+                .addLeftAlign().addSmallFont().addContent("left").addCenterAlign().addSmallFont().addContent("center").addSmallFont().addRightAlign().addContent("right")
+                .addLineSeparator()
+                .addBarcode(PrintBarcode.BarCodeType.EAN128, 1, "[3102]000035")
+                .addLineSeparator()
+                .addDate()
+                .addLineSeparator()
+                .addBarcode(PrintBarcode.BarCodeType.PDF417, 2, "abcdefghijklmnopqrstuvwxyz57682143abcdefghijklmnopqrstuvwxyz57682143")
+                .addLineSeparator()
+//                .addBarcode(PrintBarcode.BarCodeType.GRIDMATRIX, 4, "56781234asoi23doj3oi")
+                .addLineSeparator()
+                .addBarcode(PrintBarcode.BarCodeType.QRCODE, 8, "56781234abcd111243232123fds")
+                .addLineSeparator()
+                .addDisclaimer()
+                .addTrailer();
+//        posLinkPrinter.print(printDataFormatter.build(),cutMode,printListener);
+        posLinkPrinter.print(bmp,cutMode, printListener );
+    }
+
     private void printItemsList() {
 
         new Thread(new Runnable() {
@@ -2438,13 +2885,43 @@ public class POSWebActivity extends FragmentActivity {
             POSWebPrinting.postDataToServerForPrinting(printInvoiceId,printInfoObj,"finalbill");
 //            return;
         }
+
+        try {
+            String baseDir = Environment.getExternalStorageDirectory()
+                    .getAbsolutePath() + "/printData";
+            File dir = new File(Environment.getExternalStorageDirectory()
+                    + "/printData");
+            String fileName = "billFileWebView.png";
+            File myFile = new File(baseDir + File.separator + fileName);
+            if (myFile.exists())
+                myFile.delete();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+
+                    ViewGroup.LayoutParams params = printWebview.getLayoutParams();
+                    params.width = webViewWidth;
+                    params.height = 90;
+                    printWebview.setLayoutParams(params);
+                }
+            });
+        }catch (Exception exp){
+            exp.printStackTrace();
+        }
 //            posWebPrinting.printHtmlToPrinter(printString,cv.primaryPrinterName(),true);
         new Thread(new Runnable() {
             @Override
             public void run() {
                 POSWebPrinting posWebPrinting = new POSWebPrinting();
                 String printString = posWebPrinting.htmlContentForInvoice(printInvoiceId,printInfoObj);
+                Log.v("PrintStringInvoice",printString);
 
+                LoadWebViewWithString(printString,"invoice", "");
             }
         }).start();
             return;
@@ -2531,5 +3008,22 @@ public class POSWebActivity extends FragmentActivity {
         ssid  = info.getSSID();
         ssid = ssid. replaceAll("^\"|\"$", "");
         Log.v("Printing","Ssid name is "+ssid); */
+    }
+    public static Bitmap screenshot(WebView webView) {
+        webView.measure(View.MeasureSpec.makeMeasureSpec(
+                        View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        webView.layout(0, 0, webView.getMeasuredWidth(), webView.getMeasuredHeight());
+        webView.setDrawingCacheEnabled(true);
+        webView.buildDrawingCache();
+        Bitmap bitmap = Bitmap.createBitmap(webView.getMeasuredWidth(),
+                webView.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+
+        Canvas canvas = new Canvas(bitmap);
+        Paint paint = new Paint();
+        int iHeight = bitmap.getHeight();
+        canvas.drawBitmap(bitmap, 0, iHeight, paint);
+        webView.draw(canvas);
+        return bitmap;
     }
 }

@@ -12,6 +12,7 @@ import com.simplpos.waiterordering.SplashScreen;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.StringCharacterIterator;
 import java.util.ArrayList;
 
 public class DatabaseVariables {
@@ -1187,5 +1188,34 @@ public class DatabaseVariables {
         dbHelper.executeExecSQL(StoreDetails);
 
 
+    }
+
+
+    public static String addSlashes(String text) {
+        final StringBuffer sb = new StringBuffer(text.length() * 2);
+        final StringCharacterIterator iterator = new StringCharacterIterator(text);
+
+        char character = iterator.current();
+
+        while (character != StringCharacterIterator.DONE) {
+            if (character == '"')
+                sb.append("\\\"");
+            else if (character == '\'')
+                sb.append("\\\'");
+            else if (character == '\\')
+                sb.append("\\\\");
+            else if (character == '\n')
+                sb.append("\\n");
+            else if (character == '{')
+                sb.append("\\{");
+            else if (character == '}')
+                sb.append("\\}");
+            else/*from www  . ja  v a2 s.  c  o m*/
+                sb.append(character);
+
+            character = iterator.next();
+        }
+
+        return sb.toString();
     }
 }

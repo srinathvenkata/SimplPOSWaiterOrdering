@@ -1,8 +1,11 @@
 package com.simplpos.waiterordering.helpers.paymentprocessors;
 
+import android.util.Log;
+
 import com.pax.poslink.BatchRequest;
 import com.pax.poslink.BatchResponse;
 import com.pax.poslink.CommSetting;
+import com.pax.poslink.POSLinkAndroid;
 import com.pax.poslink.PaymentRequest;
 import com.pax.poslink.PaymentResponse;
 import com.pax.poslink.PosLink;
@@ -25,7 +28,7 @@ public class PAXPaymentProcessing {
 //        commSetting.setType(CommSetting.BT);
 //        commSetting.setMacAddr("BT:70:3E:97:A6:D1:E9");
 //        commSetting.setType(CommSetting.UART);
-//        commSetting.setSerialPort("COM3");
+//        commSetting.setSeialPort("COM3");
         // Create a POSLink object. In Android, it needs to pass context.
 //        commSetting.setDestPort("10009");
 //        commSetting.setSerialPort("COM3");
@@ -193,24 +196,26 @@ public class PAXPaymentProcessing {
         JSONObject returnObj = new JSONObject();
         try {
             String settingIniFile = MyApplication.getAppContext().getFilesDir().getAbsolutePath() + "/SIMPLPOS/";
-
+            Log.v("Paxpayment","initializeTheTransactionWithAmount called");
             CommSetting commSetting = new CommSetting();
 //        System.out.println(commSetting.getType()+ " is the communication type");
 //        commSetting.setType(CommSetting.BT);
 //        commSetting.setMacAddr("BT:70:3E:97:A6:D1:E9");
-//        commSetting.setType(CommSetting.UART);
+        commSetting.setType(CommSetting.AIDL);
 //        commSetting.setSerialPort("COM3");
             // Create a POSLink object. In Android, it needs to pass context.
-//        commSetting.setDestPort("10009");
+        commSetting.setDestPort("10009");
 //        commSetting.setSerialPort("COM3");
 //        commSetting.setType(CommSetting.TCP);
-            commSetting.setType(CommSetting.TCP);
-            commSetting.setDestIP(ipAddressOfPAXPinPad());
+//            commSetting.setType(CommSetting.TCP);
+//            commSetting.setDestIP(ipAddressOfPAXPinPad());
 //        commSetting.setBaudRate("9600");
-            commSetting.setDestPort(portNumberOfPAXPinPad());
+//            commSetting.setDestPort(portNumberOfPAXPinPad());
 
             commSetting.setTimeOut("120000");
-            PosLink posLink = new PosLink();
+            POSLinkAndroid.init(MyApplication.getAppContext());
+            PosLink posLink = new PosLink(MyApplication.getAppContext());
+//            PosLink posLink = new PosLink();
             // Set the communication type. Currently support TCP, SSL, USB... For Android, it supports Bluetooth and more.
             posLink.SetCommSetting(commSetting);
             // Setup the Request. Can be PaymentRequest, ManageRequest, BatchRequest, ReportRequest
@@ -243,54 +248,56 @@ public class PAXPaymentProcessing {
                 PaymentResponse response = posLink.PaymentResponse;
                 System.out.println(response);
 
-                System.out.println("Transaction status is " + response.ResultTxt);
-                System.out.println("Extra Data is  " + response.ExtData);
-                System.out.println("Tip Amount is " + (getTagValue(response.ExtData, "TipAmount")));
-                System.out.println("Card Holder Name is " + (getTagValue(response.ExtData, "CARDHOLDER")));
-                System.out.println("Expiry date is " + (getTagValue(response.ExtData, "ExpDate")));
-                System.out.println("Edc type is " + (getTagValue(response.ExtData, "EDCTYPE")));
+                System.out.println("Transaction status is "+response.ResultTxt);
+                System.out.println("Extra Data is  "+response.ExtData);
+                System.out.println("Tip Amount is "+(getTagValue(response.ExtData,"TipAmount")));
+                System.out.println("Card Holder Name is "+(getTagValue(response.ExtData,"CARDHOLDER")));
+                System.out.println("Expiry date is "+(getTagValue(response.ExtData,"ExpDate")));
+                System.out.println("Edc type is "+(getTagValue(response.ExtData,"EDCTYPE")));
 
 //            System.out.println("First Name is "+(getTagValue(response.ExtData,"FirstName")));
 //            System.out.println("Last Name is "+(getTagValue(response.ExtData,"LastName")));
-                System.out.println(response.CardInfo + " is the card info");
+                System.out.println(response.CardInfo+" is the card info");
 
-                System.out.println(response.RefNum + " is the transaction reference number");
-                System.out.println(response.ApprovedAmount + " is the approved amount");
-                System.out.println(response.AuthCode + " is the authorization code");
-                System.out.println(response.CardType + " is the card type");
-                System.out.println(response.CardInfo.CardBin + " is the card info");
-                System.out.println(response.CardInfo.ProgramType + " is the card info");
-                System.out.println(response.CardInfo.NewCardBin + " is the card info");
-                System.out.println(response.AuthorizationResponse + " is the authorization response");
-                System.out.println(response.ECRTransID + " is the ECR Transaction ID");
-                System.out.println(response.RefNum + " is the Reference num");
+                System.out.println(response.RefNum+" is the transaction reference number");
+                System.out.println(response.ApprovedAmount+" is the approved amount");
+                System.out.println(response.AuthCode+" is the authorization code");
+                System.out.println(response.CardType+" is the card type");
+                System.out.println(response.CardInfo.CardBin+" is the card info");
+                System.out.println(response.BogusAccountNum+" is the last four digits of card");
+                System.out.println(response.CardInfo.ProgramType+" is the card info");
+                System.out.println(response.CardInfo.NewCardBin+" is the card info");
+                System.out.println(response.AuthorizationResponse+" is the authorization response");
+                System.out.println(response.ECRTransID+" is the ECR Transaction ID");
+                System.out.println(response.RefNum+" is the Reference num");
                 System.out.println(response.RetrievalReferenceNumber + " is the retreival reference number");
-                System.out.println((response.PaymentTransInfo).toString() + " is the ECR Transaction ID");
+                System.out.println((response.PaymentTransInfo).toString()+" is the ECR Transaction ID");
 
-                try {
-                    returnObj.put("reference_number", response.RefNum);
-                    returnObj.put("tip_amount", (getTagValue(response.ExtData, "TipAmount")));
+                try{
+                    returnObj.put("reference_number",response.RefNum);
+                    returnObj.put("tip_amount", (getTagValue(response.ExtData,"TipAmount")) );
 
-                    returnObj.put("card_holder_name", (getTagValue(response.ExtData, "CARDHOLDER")));
-                    returnObj.put("edc_type", (getTagValue(response.ExtData, "EDCTYPE")));
-
-                    returnObj.put("approved_amount", response.ApprovedAmount);
-                    if (response.ApprovedAmount.equals("")) {
-                        returnObj.put("approved_amount", "0.00");
+                    returnObj.put("card_holder_name",(getTagValue(response.ExtData,"CARDHOLDER")));
+                    returnObj.put("edc_type",(getTagValue(response.ExtData,"EDCTYPE")));
+                    returnObj.put("last_four_digits_of_card",response.BogusAccountNum);
+                    returnObj.put("approved_amount",response.ApprovedAmount);
+                    if(response.ApprovedAmount.equals(""))
+                    {
+                        returnObj.put("approved_amount","0.00");
 
                     }
 
-                    if (response.ResultTxt.equals("DECLINE")) {
-                        returnObj.put("approved_amount", "0");
-                    } else {
-                        returnObj.put("approved_amount", response.ApprovedAmount);
+                    if(response.ResultTxt.equals("DECLINE"))
+                    { returnObj.put("approved_amount","0"); }
+                    else{
+                        returnObj.put("approved_amount",response.ApprovedAmount);
                     }
-                    returnObj.put("auth_code", response.AuthCode);
-                    returnObj.put("result_status", response.ResultTxt);
-                    returnObj.put("generated_transaction_reference_id", transactionGeneratedId);
-                    returnObj.put("given_amount", transAmount);
-                    returnObj.put("extra_data", response.ExtData);
-                } catch (Exception exp) {
+                    returnObj.put("auth_code",response.AuthCode);
+                    returnObj.put("result_status",response.ResultTxt);
+                    returnObj.put("generated_transaction_reference_id",transactionGeneratedId);
+                    returnObj.put("given_amount",transAmount);
+                    returnObj.put("extra_data",response.ExtData);
+                }catch (Exception exp){
                     exp.printStackTrace();
                 }
             } else if (transResult.Code == ProcessTransResult.ProcessTransResultCode.TimeOut) {

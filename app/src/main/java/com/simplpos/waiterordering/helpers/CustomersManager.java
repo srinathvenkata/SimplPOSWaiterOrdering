@@ -367,4 +367,17 @@ public class CustomersManager {
         }catch (Exception exp){ exp.printStackTrace(); }
         return productInfo;
     }
+    public String rewardPointsOfCustomer(String customerId) {
+        String rewardPointsValue = "0";
+        try {
+            ArrayList<JSONObject> customerGeneralInfoDetails = mySqlObj.executeRawqueryJSON("SELECT * FROM " + dbVar.CUSTOMER_GENERAL_INFO_TABLE + " WHERE " + dbVar.CUSTOMER_NO + "='" + customerId + "' LIMIT 1");
+            if (customerGeneralInfoDetails.size() != 0) {
+                JSONObject customerInfo = customerGeneralInfoDetails.get(0);
+                rewardPointsValue = String.valueOf(customerInfo.get("reward_points"));
+            }
+        }catch (Exception exp){
+            exp.printStackTrace();
+        }
+        return rewardPointsValue;
+    }
 }
