@@ -751,7 +751,7 @@ public class CardPaymentProcessingMaster {
                     printContent += "<tr class=\"cashBenefitBalanceOnCard\"><td colspan=\"2\" >Cash Benefit Balance</td><td colspan=\"2\">$&nbsp;" + nf.format(Double.parseDouble(cashBenefitBalanceOnCard)) + "</td></tr>";
 
                 }
-                printContent += "<tr><td colspan=\"4\" style=\"border-bottom:2px solid #000;\">&nbsp;</td></tr><tr><td colspan=\"4\" style=\"\">&nbsp;<br /><br /><br /></td></tr>";
+                printContent += "<tr><td colspan=\"4\" style=\"border-bottom:2px solid #000;\">&nbsp;</td></tr><tr><td colspan=\"4\" style=\"\">&nbsp;<br /></td></tr>";
             }
 
         }

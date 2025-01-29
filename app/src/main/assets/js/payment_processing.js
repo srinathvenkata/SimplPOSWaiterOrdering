@@ -2,6 +2,7 @@ function initializePaymentTransaction()
 {
         try{
         AndroidInterface.initTransactionForAmount(jQuery("#initiateCardPayment").val());
+        AndroidInterface.holdInvoiceIDForTransaction(jQuery("#holdInvoiceId").val());
         modeOfPaymentSwiping = "Card";
         isCardProcessing = true;
     }catch(Err){

@@ -34,7 +34,7 @@ jQuery(document).on("click","#tableSelectionButton", function(event){
 function showTableLayoutWithTables()
 {
     try{
-    AndroidInterface.showLoadingDialog();
+    AndroidInterface.showLoadingAsyncDialog();
     AndroidInterface.fetchTableSelectionAsync();
     }catch(Err)
     {
@@ -267,7 +267,7 @@ jQuery(document).on("click",".preselectedTableBtn", function(event){
             return;
         }
 
-    AndroidInterface.showLoadingDialog();
+    AndroidInterface.showLoadingAsyncDialog();
 
     clearAllContentOfCart();
 	jQuery("#tableSelectionPopup").hide();
@@ -454,6 +454,7 @@ function hideLoadingPopupModal()
 
     jQuery("#showLoadingModal").modal("hide");
     AndroidInterface.stopLoadingDialog();
+    AndroidInterface.hideLoadingAsyncDialog();
     }catch(Err)
     {
     bootbox.alert(Err.stack);

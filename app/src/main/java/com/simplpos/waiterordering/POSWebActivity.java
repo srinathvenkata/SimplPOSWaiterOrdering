@@ -40,6 +40,7 @@ import android.os.Environment;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -88,6 +89,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -220,7 +223,11 @@ public class POSWebActivity extends FragmentActivity {
         isSavingInvoice = false;
         declarePrintWebView();
         setContentView(layout);
-
+        if (android.os.Build.VERSION.SDK_INT > 9)
+        {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
     }
 
     private void declarePrintWebView(){
@@ -243,13 +250,13 @@ public class POSWebActivity extends FragmentActivity {
         params.height = webViewHeight;
         printWebview.setLayoutParams(params);
 
-        printWebview.loadDataWithBaseURL(null,"<html><body><p>Welcome To SR POS</p></body></html>", "text/html", "UTF-8", null);
+        printWebview.loadDataWithBaseURL(null,"<html><body><p>Welcome To Simpl POS POS</p></body></html>", "text/html", "UTF-8", null);
 
         printWebview.setInitialScale(100);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             printWebview.enableSlowWholeDocumentDraw();
         }
-        LoadWebViewWithString("<html><body><p>Welcome To SR POS</p></body></html>","none", "");
+        LoadWebViewWithString("<html><body><p style=\"\">Welcome To SR POS</p></body></html>","none", "");
         posLinkPrinter = POSLinkPrinter.getInstance(MyApplication.getAppContext());
     }
 
@@ -303,6 +310,8 @@ public class POSWebActivity extends FragmentActivity {
 //                printWebview.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
                 final Handler handler1 = new Handler(Looper.getMainLooper());
+//                changeWebviewHeightToContentHeight();
+
                 handler1.postDelayed(new Runnable() {
                     public void run() {
                         int NEWHeight = printWebview.getContentHeight();
@@ -313,6 +322,7 @@ public class POSWebActivity extends FragmentActivity {
                         try {
                             printWebview.setVisibility(View.VISIBLE);
                             Log.v("Srinath","New height of printwebview is "+printWebview.getHeight()+" content height is "+printWebview.getContentHeight());
+
 //                            printWebview.setMinimumHeight(printWebview.getContentHeight());
                             /*float scale = printWebview.getScale();
                             int height = (int) (printWebview.getContentHeight());// * scale + 0.5);
@@ -383,9 +393,7 @@ public class POSWebActivity extends FragmentActivity {
 
 
                         ViewGroup.LayoutParams params = printWebview.getLayoutParams();
-//                        params.width = ViewGroup.LayoutParams.MATCH_PARENT;
-//                        params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-//                        printWebview.setLayoutParams(params);
+                        printWebview.setLayoutParams(params);
                         {
                             if(printType.equals("imageprinting")) {
                                 if(invoiceorkot.equals("invoice")) {
@@ -404,6 +412,19 @@ public class POSWebActivity extends FragmentActivity {
 
             }
         }, 1000);   //7 seconds
+    }
+
+    private void changeWebviewHeightToContentHeight() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ViewGroup.LayoutParams vc=printWebview.getLayoutParams();
+                vc.height=webViewWidth;
+                vc.width=printWebview.getContentHeight();
+                printWebview.setLayoutParams(vc);
+
+            }
+        });
     }
 
     private void printBitmapImageForInvoice()
@@ -429,7 +450,7 @@ public class POSWebActivity extends FragmentActivity {
 
     }
 
-    public static int imageBreakHeight = 3000;
+    public static int imageBreakHeight = 1500;
     private  void breakImagesAndPrintToESCPOSUSBGenericPrinter(String fileName)
     {
         Log.v("Printing",fileName+ " has to be printed");
@@ -445,7 +466,6 @@ public class POSWebActivity extends FragmentActivity {
                 int billImgheight         = bitmap.getHeight() ;//githubBufferedImage.getHeight();
                 int billImgWidth = bitmap.getWidth();
 
-
                 // convert this githubBufferedImage to breakupImages by height
 
                 int remainingHeight = billImgheight;
@@ -456,8 +476,6 @@ public class POSWebActivity extends FragmentActivity {
                     //BufferedImage croppedImage = cropImage(githubBufferedImage,0,(  (fromHeight==0) ? (fromHeight) : (fromHeight+1) ),billImgWidth,heightToBeCut);
 
                     Bitmap resizedBmp = Bitmap.createBitmap(bitmap, 0, ( (fromHeight==0) ? (fromHeight) : (fromHeight+1) ) ,billImgWidth,(heightToBeCut-1));
-
-//                    usbGenericPrinter.printImage(printingImage);
 
                     printBitmapToPaxPrinter(resizedBmp);
                     remainingHeight = remainingHeight - imageBreakHeight;
@@ -496,7 +514,7 @@ public class POSWebActivity extends FragmentActivity {
 
         int width = drawable.getIntrinsicWidth();
         width = width > 0 ? width : 1;
-        int height = drawable.getIntrinsicHeight();
+        int height = printWebview.getContentHeight();// drawable.getIntrinsicHeight();
         height = height > 0 ? height : 1;
         Log.v("Srinath","Printing height in drawable to bitmap is "+height);
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_4444);
@@ -1202,10 +1220,8 @@ public class POSWebActivity extends FragmentActivity {
 
 
         }
-
         @JavascriptInterface
-        public void showLoadingDialog()
-        {
+        public void showLoadingAsyncDialog(){
             try {
                 // called before request is started
                 dialog = new ProgressDialog(POSWebActivity.this);
@@ -1217,8 +1233,26 @@ public class POSWebActivity extends FragmentActivity {
             }
         }
         @JavascriptInterface
+        public void hideLoadingAsyncDialog(){
+                dialog.hide();
+        }
+        @JavascriptInterface
+        public void showLoadingDialog()
+        {
+            try {
+                // called before request is started
+                dialog = new ProgressDialog(POSWebActivity.this);
+//                dialog.show();
+//                dialog.setContentView(R.layout.progress_dialog);
+//                dialog.setCanceledOnTouchOutside(false);
+            }catch (Exception exp){
+                exp.printStackTrace();
+            }
+        }
+        @JavascriptInterface
         public void stopLoadingDialog(){
             try {
+                Log.v("DialogLoading","Hide Called");
                 dialog.hide();
             }catch (Exception exp){
                 exp.printStackTrace();
@@ -2388,7 +2422,7 @@ public class POSWebActivity extends FragmentActivity {
             } catch (Exception e) {
                 Log.v("Srinath",e.getMessage());
             }
-
+            stopLoadingDialog();
             return true;
         }
 
@@ -2629,6 +2663,12 @@ public class POSWebActivity extends FragmentActivity {
             editor.commit();
 
         }
+        private String holdInvoiceIdForTransaction = "";
+        @JavascriptInterface
+        public void holdInvoiceIDForTransaction(String invoiceId)
+        {
+            holdInvoiceIdForTransaction = invoiceId;
+        }
         @JavascriptInterface
         public void initTransactionForAmount(final  String transactionAmountInDollar){
             tempTransactionDetails = null;
@@ -2701,6 +2741,7 @@ public class POSWebActivity extends FragmentActivity {
                             updateTransactionDetailsObj.put("status","Cancelled");
                             showAlertDialogJS("Error",resultStatus+" while processing card payment");
                         }else{
+                            updateTransactionDetailsObj.put("invoice_id",holdInvoiceIdForTransaction);
                             updateTransactionDetailsObj.put("tip_amount",tipAmount);
                             updateTransactionDetailsObj.put("edc_type",tempTransactionDetails.get("edc_type"));
                             updateTransactionDetailsObj.put("card_holder_name",tempTransactionDetails.get("card_holder_name"));
@@ -2758,9 +2799,9 @@ public class POSWebActivity extends FragmentActivity {
 
 
                 dialog = new ProgressDialog(POSWebActivity.this);
-                dialog.show();
-                dialog.setContentView(R.layout.progress_dialog);
-                dialog.setCanceledOnTouchOutside(false);
+//                dialog.show();
+//                dialog.setContentView(R.layout.progress_dialog);
+//                dialog.setCanceledOnTouchOutside(false);
             }
 
             @Override
@@ -2914,19 +2955,105 @@ public class POSWebActivity extends FragmentActivity {
             exp.printStackTrace();
         }
 //            posWebPrinting.printHtmlToPrinter(printString,cv.primaryPrinterName(),true);
-        new Thread(new Runnable() {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 POSWebPrinting posWebPrinting = new POSWebPrinting();
+
                 String printString = posWebPrinting.htmlContentForInvoice(printInvoiceId,printInfoObj);
                 Log.v("PrintStringInvoice",printString);
-
-                LoadWebViewWithString(printString,"invoice", "");
+//                LoadWebViewWithString(printString,"invoice", "");
+                LANImagePrintingToPAXPrinter(printString);
             }
-        }).start();
+        });
             return;
 
 
+    }
+    private void showLoadingDialogSpinner(){
+
+        dialog = new ProgressDialog(POSWebActivity.this);
+        dialog.show();
+        dialog.setContentView(R.layout.progress_dialog);
+        dialog.setCanceledOnTouchOutside(false);
+    }
+    private void stopLoadingDialogSpinner(){
+        dialog.hide();
+    }
+    private void LANImagePrintingToPAXPrinter(final String printString) {
+        Log.v("LANImagePrintingToPAXPrinter","LANImagePrintingToPAXPrinter called");
+
+
+        Handler mainHandler = new Handler(Looper.getMainLooper());
+        Runnable myRunnable = new Runnable() {
+            @Override
+            public void run() {
+                AsyncHttpClient client = new AsyncHttpClient();
+                RequestParams params = new RequestParams();
+                params.put("html", printString);
+                params.put("width", "380");
+                String hostAddr = preferences.getString(ConstantsAndUtilities.HOSTAddress, "");
+                Log.v("LANImagePrintingToPAXPrinter",hostAddr);
+                showLoadingDialogSpinner();
+                client.post("http://"+hostAddr+"/generate_image_from_html_for_printing.php", params, new TextHttpResponseHandler() {
+                            @Override
+                            public void onSuccess(int statusCode, Header[] headers, String res) {
+                                // called when response HTTP status is "200 OK"
+                                Log.v("LANImagePrintingToPAXPrinter","Success "+res);
+                                try {
+                                    final JSONObject responseOfHTTPCall = new JSONObject(res);
+                                    Log.v("LANImagePrintingToPAXPrinter","Image path is "+responseOfHTTPCall.getString("image_path"));
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            try {
+                                                Bitmap bmp = getBitmapFromURL("http://" + hostAddr + "/" + responseOfHTTPCall.getString("image_path"));
+                                                printBitmapToPaxPrinter(bmp);
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                                Log.v("LANImagePrintingToPAXPrinter",e.getMessage());
+                                            }
+
+                                        }
+                                    });
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                    Log.v("LANImagePrintingToPAXPrinter",e.getMessage());
+
+                                    dialog.hide();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                                // called when response HTTP status is "4XX" (eg. 401, 403, 404)
+                                Toast.makeText(MyApplication.getAppContext(), "Issue while saving image "+res+" Exception "+(t.getMessage()), Toast.LENGTH_SHORT).show();
+                                dialog.hide();
+                            }
+
+                        }
+                );
+            }
+        };
+        mainHandler.post(myRunnable);
+
+
+    }
+    public Bitmap getBitmapFromURL(String imageUrl) {
+        try {
+            URL url = new URL(imageUrl);
+            HttpURLConnection connection = (HttpURLConnection)
+
+                    url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            InputStream inputStream = connection.getInputStream();
+            Bitmap imageBitmap = BitmapFactory.decodeStream(inputStream);
+            return imageBitmap;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public void displayPrintPopupInWebview(){

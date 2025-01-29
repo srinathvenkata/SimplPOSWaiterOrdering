@@ -333,6 +333,14 @@ public class ConstantsAndUtilities {
         return formattedDate;
     }
 
+
+    public static String currentTimeDayMonthFormatForInvoice() {
+        Calendar c = Calendar.getInstance();
+        SimpleDateFormat df = new SimpleDateFormat("MMMM dd, yyyy hh:mm:ss a");
+        String formattedDate = df.format(c.getTime());
+        return formattedDate;
+    }
+
     public static String primaryKOTName() {
         String printerName =   "";
         String printerRowId ="";

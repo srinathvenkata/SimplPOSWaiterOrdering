@@ -2496,6 +2496,7 @@ function finalPay()
 		completeTheInvoice();
 	}else{
 		var balanceAmountToBePaid = remainingAmount - amountBeingPaid;
+		balanceAmountToBePaid = balanceAmountToBePaid.toFixed(2);
 		jQuery("#givenAmountVal").val(balanceAmountToBePaid);
 		jQuery("#givenAmount").html(balanceAmountToBePaid);
 		jQuery("#easy-numpad-output-2").html(balanceAmountToBePaid);
@@ -2765,7 +2766,7 @@ jQuery(document).ready(function(){
 				});
 				jQuery(document).on("click","#holdInvoicesBody tr", function(event){
 
-				    AndroidInterface.showLoadingDialog();
+				    AndroidInterface.showLoadingAsyncDialog();
 					var invoiceId = jQuery(this).attr("data-holdinvoiceid");
 					var invoiceHoldIdForFetch = jQuery(this).find("td:first-child").text();
 					var invoiceAmt = jQuery(this).attr("data-invoiceidamount");
@@ -3002,8 +3003,9 @@ function recallInvoicePopup()
 				}
 
 	var storeId = jQuery("#invoiceStoreId").val();
-						try{
-								var recallInvoices = JSON.parse(AndroidInterface.invoicesList(storeId,"complete"));
+	                    try{
+	                                AndroidInterface.showLoadingAsyncDialog();
+                        		var recallInvoices = JSON.parse(AndroidInterface.invoicesList(storeId,"complete"));
 								if(!	(recallInvoices === undefined || recallInvoices === null))
 								{
 											if(recallInvoices!=false && recallInvoices.length!=0)
@@ -3029,6 +3031,8 @@ function recallInvoicePopup()
 												displayRecallPopup();		
 											}
 								}
+
+						    AndroidInterface.hideLoadingAsyncDialog();
 						}
 						catch(Err){
 							AndroidInterface.showToast(Err.stack);
@@ -3347,7 +3351,7 @@ function retrieveTableNumbers()
 function saveNewInvoice()
 {
 	var orderRefNum = jQuery("#orderRefNum").val();
-        AndroidInterface.showLoadingDialog();
+        AndroidInterface.showLoadingAsyncDialog();
 	try{
 
 		var checkExistingRefNum = AndroidInterface.validateExistingRefNum(orderRefNum,jQuery("#invoiceStoreId").val());

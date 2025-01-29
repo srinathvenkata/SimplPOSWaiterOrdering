@@ -714,7 +714,7 @@ public class POSWebPrinting {
             bodyContent += "<table id=\"page\"  style=\"float:left;\" cellspacing=\"2\" cellpadding=\"2\"  width=\"100%\" align=\"center\" border=\"0\">";
             bodyContent += "<tr><td colspan=\"4\"><h2>Deleted Item Cancelled KOT For Invoice #"+voidInvoiceId+" "+orderRefNum+"</h2></td></tr>";
             bodyContent += "<tr><td>Employee</td><td>"+ Parameters.userid +"</td></tr>";
-            bodyContent += "<tr><td align=\"left\"  colspan=\"4\" style=\"font-size:22px\">DATE/TIME:  "+ (Parameters.currentTimeDayMonthFormat())+" </td></tr>";
+            bodyContent += "<tr><td align=\"left\"  colspan=\"4\" style=\"font-size:22px\">DATE/TIME:  "+ (ConstantsAndUtilities.currentTimeDayMonthFormat())+" </td></tr>";
             bodyContent += "<tr><td align=\"left\"  colspan=\"2\" style=\"font-size:22px\">Cancellation Status :  </td><td colspan=\"2\">"+cancellationStatus+"</td></tr>";
             ArrayList<JSONObject> invoiceItemDetails = deletedItems;
 
@@ -1231,7 +1231,7 @@ public class POSWebPrinting {
 
             orderTypeString = orderTypeName((String) invoiceDetails.get(0).optString(dbVar.ORDER_TYPE));
         }
-        ArrayList<JSONObject> invoiceItemDetails = sqlObj.executeRawqueryJSON("SELECT * FROM invoice_items_table WHERE invoice_id='"+printInvoiceId+"'");
+        ArrayList<JSONObject> invoiceItemDetails = sqlObj.executeRawqueryJSON("SELECT invoice_items_table.*,optional_info_table.unit_type,optional_info_table.mrp,optional_info_table.bottle_deposit_value, optional_info_table.has_bottle_deposit , inventorytable.inventary_taxone FROM invoice_items_table LEFT JOIN optional_info_table ON invoice_items_table.item_id = optional_info_table.inventory_item_no LEFT JOIN inventorytable ON optional_info_table.inventory_item_no = inventorytable.inventory_item_no WHERE invoice_id='"+printInvoiceId+"'");
         ArrayList<JSONObject> invoiceItemCountDetails = sqlObj.executeRawqueryJSON("SELECT SUM(item_quantity) as totalQuantity FROM invoice_items_table WHERE invoice_id='"+printInvoiceId+"'");
         String customerCopyString = "";
         printInfoObj = contentObj;
@@ -1280,16 +1280,19 @@ public class POSWebPrinting {
                 String units="";
                 String hasBottleDeposit = "no";
                 Double bottleRefundValuePerUnit = 0.0d;
-                ArrayList<JSONObject> optionalInfoDetails = sqlObj.executeRawqueryJSON("SELECT * FROM "+ dbVar.OPTIONAL_INFO_TABLE + " WHERE "+dbVar.INVENTORY_ITEM_NO+"='" + invoiceItemDetails.get(p).optString(dbVar.INVOICE_ITEM_ID)+ "'");
-                ArrayList<JSONObject> inventoryInfoDetails = sqlObj.executeRawqueryJSON("SELECT * FROM "+ dbVar.INVENTORY_TABLE + " WHERE "+dbVar.INVENTORY_ITEM_NO+"='" + invoiceItemDetails.get(p).optString(dbVar.INVOICE_ITEM_ID)+ "'");
-                if(optionalInfoDetails.size()==1){ units = (String) optionalInfoDetails.get(0).optString(dbVar.UNIT_TYPE);
-                    try{ hasBottleDeposit = (String) optionalInfoDetails.get(0).optString("has_bottle_deposit"); bottleRefundValuePerUnit = Double.parseDouble( String.valueOf(optionalInfoDetails.get(0).get("bottle_deposit_value"))); }catch (Exception exp){ exp.printStackTrace(); } }
+//                ArrayList<JSONObject> optionalInfoDetails = sqlObj.executeRawqueryJSON("SELECT * FROM "+ dbVar.OPTIONAL_INFO_TABLE + " WHERE "+dbVar.INVENTORY_ITEM_NO+"='" + invoiceItemDetails.get(p).optString(dbVar.INVOICE_ITEM_ID)+ "'");
+//                ArrayList<JSONObject> inventoryInfoDetails = sqlObj.executeRawqueryJSON("SELECT * FROM "+ dbVar.INVENTORY_TABLE + " WHERE "+dbVar.INVENTORY_ITEM_NO+"='" + invoiceItemDetails.get(p).optString(dbVar.INVOICE_ITEM_ID)+ "'");
+//                if(optionalInfoDetails.size()==1)
+                {
+                    units = (String) invoiceItemDetails.get(p).optString(dbVar.UNIT_TYPE);
+                    try{ hasBottleDeposit = (String) invoiceItemDetails.get(p).optString("has_bottle_deposit"); bottleRefundValuePerUnit = Double.parseDouble( String.valueOf(invoiceItemDetails.get(p).optString("bottle_deposit_value"))); }catch (Exception exp){ exp.printStackTrace(); }
+                }
                 if(!units.equals("")){                    quantityString += " "+units; }
                 Boolean itemShouldDisplayMRP = false;
                 Boolean itemShouldDisplayBottleRefund = true;
                 Double mrp = 0.0d;
                 try{
-                    String mrpString = (String)optionalInfoDetails.get(0).get(dbVar.INVENTORY_MRP);
+                    String mrpString = (String)invoiceItemDetails.get(p).optString(dbVar.INVENTORY_MRP);
 
                     mrp = Double.parseDouble(!mrpString.equals("") ? mrpString : "0.00");
 
@@ -1327,12 +1330,12 @@ public class POSWebPrinting {
                     // itemsListStr +="<tr class=\"mrpPriceOfItemRow\"><td>&nbsp;</td><td colspan=\"2\">MRP <span style=\"white-space:nowrap;\">"+(df.format((mrp)))+"&nbsp;"+currencyHtmlStr+"</span></td><td>&nbsp;</td></tr>";
                 }
                 String taxStr = "";
-                if(inventoryInfoDetails.size()==1)
+//                if(inventoryInfoDetails.size()==1)
                 {
-                    JSONObject inventoryInfo = inventoryInfoDetails.get(0);
-                    taxStr = (String) inventoryInfo.optString(dbVar.INVENTORY_TAXONE);
+//                    JSONObject inventoryInfo = inventoryInfoDetails.get(0);
+                    taxStr = (String) invoiceItemDetails.get(p).optString(dbVar.INVENTORY_TAXONE);
                 }
-                if(!taxStr.equals(""))
+                if(taxStr!=null && !taxStr.equals(""))
                 {
                     String itemInclusiveTax = itemwiseTaxCalc(taxStr,Double.parseDouble(totalPrice));
                     String gstStr = "<td>&nbsp;</td><td colspan=\"3\">"+itemInclusiveTax+"</td></tr>";

@@ -303,9 +303,9 @@ public class MainActivity extends FragmentActivity {
 
             // called before request is started
             dialog = new ProgressDialog(MainActivity.this);
-            dialog.show();
-            dialog.setContentView(R.layout.progress_dialog);
-            dialog.setCanceledOnTouchOutside(true);
+//            dialog.show();
+//            dialog.setContentView(R.layout.progress_dialog);
+//            dialog.setCanceledOnTouchOutside(true);
         }
 
         @JavascriptInterface

@@ -177,7 +177,8 @@ public class SaveFetchVoidInvoice {
             if(!paymentType.equals("multiple")){
                 paymentRefNo = obj.optString("paymentRefNo1");
             }
-            contentValues.put(dbVar.INVOICE_CHEQUE_NO,paymentRefNo);
+
+                contentValues.put(dbVar.INVOICE_CHEQUE_NO,paymentRefNo);
             contentValues.put(dbVar.INVOICE_DELIVERY_STATUS,"Delivered");
             contentValues.put(dbVar.INVOICE_CUSTOMER,customerId);
 
@@ -186,6 +187,9 @@ public class SaveFetchVoidInvoice {
             String here = dbVar.UNIQUE_ID + "";
             String uniq = invoiceRow.optString(dbVar.UNIQUE_ID);
             dbVar.executeUpdateToDB(dbVar.INVOICE_TOTAL_TABLE, contentValues,here, uniq);
+
+
+            markCreditCardTransactionsAsComplete(InvoiceNumber);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
